@@ -12,6 +12,7 @@ class CategoryController extends Controller
     public function index(Request $request)
     {
         $query = Category::query()
+            ->when($request->boolean('trashed'), fn ($q) => $q->onlyTrashed())
             ->with('parent')
             ->withCount('products')
             ->when($request->search, fn ($q, $s) => $q->where('name', 'like', "%{$s}%"))
@@ -54,7 +55,52 @@ class CategoryController extends Controller
             ], 422);
         }
 
+        // soft delete, but free the unique name so it can be reused
+        $category->name = $category->name.'::deleted::'.$category->id;
+        $category->save();
+
         $category->delete();
+
+        return response()->noContent();
+    }
+
+    public function restore($id)
+    {
+        $category = Category::withTrashed()->findOrFail($id);
+
+        if (! $category->trashed()) {
+            return response()->json(['message' => 'Category is not deleted.'], 422);
+        }
+
+        $suffix = '::deleted::'.$category->id;
+        $name = str_ends_with($category->name, $suffix)
+            ? substr($category->name, 0, -strlen($suffix))
+            : $category->name;
+
+        if (Category::whereKeyNot($category->id)->where('name', $name)->exists()) {
+            return response()->json([
+                'message' => "Cannot restore: a category named {$name} already exists.",
+            ], 422);
+        }
+
+        $category->name = $name;
+        $category->save();
+        $category->restore();
+
+        return new CategoryResource($category->load('parent'));
+    }
+
+    public function forceDestroy($id)
+    {
+        $category = Category::withTrashed()->findOrFail($id);
+
+        if ($category->products()->exists() || $category->children()->exists()) {
+            return response()->json([
+                'message' => 'Cannot permanently delete a category that has products or subcategories.',
+            ], 422);
+        }
+
+        $category->forceDelete();
 
         return response()->noContent();
     }

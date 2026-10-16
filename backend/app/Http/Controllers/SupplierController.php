@@ -15,8 +15,8 @@ class SupplierController extends Controller
             ->when($request->search, function ($q, $s) {
                 $q->where(function ($q) use ($s) {
                     $q->where('name', 'like', "%{$s}%")
-                      ->orWhere('email', 'like', "%{$s}%")
-                      ->orWhere('phone', 'like', "%{$s}%");
+                        ->orWhere('email', 'like', "%{$s}%")
+                        ->orWhere('phone', 'like', "%{$s}%");
                 });
             })
             ->orderBy('name');
@@ -40,6 +40,19 @@ class SupplierController extends Controller
         return new SupplierResource($supplier);
     }
 
+    public function products(Supplier $supplier)
+    {
+        return response()->json([
+            'data' => $supplier->products()->orderBy('name')->get()->map(fn ($p) => [
+                'id' => $p->id,
+                'name' => $p->name,
+                'sku' => $p->sku,
+                'unit_cost' => $p->pivot->unit_cost,
+                'supplier_sku' => $p->pivot->supplier_sku,
+            ]),
+        ]);
+    }
+
     public function update(SupplierRequest $request, Supplier $supplier)
     {
         $supplier->update($request->validated());
@@ -49,7 +62,13 @@ class SupplierController extends Controller
 
     public function destroy(Supplier $supplier)
     {
-        $supplier->delete(); // soft delete; we'll block this once purchase orders exist
+        if ($supplier->purchaseOrders()->exists()) {
+            return response()->json([
+                'message' => 'Cannot delete a supplier that has purchase orders.',
+            ], 422);
+        }
+
+        $supplier->delete(); // soft delete
 
         return response()->noContent();
     }

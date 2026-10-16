@@ -15,13 +15,15 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $query = Product::query()
+            ->when($request->boolean('trashed'), fn ($q) => $q->onlyTrashed())
             ->with('category')
+            ->withCount('suppliers')
             ->withSum('stocks as stock_total', 'quantity')
             ->when($request->search, function ($q, $s) {
                 $q->where(function ($q) use ($s) {
                     $q->where('name', 'like', "%{$s}%")
-                      ->orWhere('sku', 'like', "%{$s}%")
-                      ->orWhere('barcode', 'like', "%{$s}%");
+                        ->orWhere('sku', 'like', "%{$s}%")
+                        ->orWhere('barcode', 'like', "%{$s}%");
                 });
             })
             ->when($request->filled('category_id'), fn ($q) => $q->where('category_id', $request->integer('category_id')))
@@ -104,10 +106,78 @@ class ProductController extends Controller
             ], 422);
         }
 
-        // soft delete; the image file is kept so the product can be restored.
+        // soft delete, but free the unique sku/barcode so they can be reused
+        $product->sku = $this->tombstone($product->sku, $product->id);
+        if ($product->barcode) {
+            $product->barcode = $this->tombstone($product->barcode, $product->id);
+        }
+        $product->save();
+
         $product->delete();
 
         return response()->noContent();
+    }
+
+    public function restore($id)
+    {
+        $product = Product::withTrashed()->findOrFail($id);
+
+        if (! $product->trashed()) {
+            return response()->json(['message' => 'Product is not deleted.'], 422);
+        }
+
+        $sku = $this->stripTombstone($product->sku, $product->id);
+        $barcode = $product->barcode ? $this->stripTombstone($product->barcode, $product->id) : null;
+
+        if (Product::whereKeyNot($product->id)->where('sku', $sku)->exists()) {
+            return response()->json([
+                'message' => "Cannot restore: SKU {$sku} is now used by another product.",
+            ], 422);
+        }
+
+        if ($barcode && Product::whereKeyNot($product->id)->where('barcode', $barcode)->exists()) {
+            return response()->json([
+                'message' => "Cannot restore: barcode {$barcode} is now used by another product.",
+            ], 422);
+        }
+
+        $product->sku = $sku;
+        $product->barcode = $barcode;
+        $product->save();
+        $product->restore();
+
+        return new ProductResource($product->load('category'));
+    }
+
+    public function forceDestroy($id)
+    {
+        $product = Product::withTrashed()->findOrFail($id);
+
+        if ($product->movements()->exists() || $product->purchaseOrderItems()->exists()) {
+            return response()->json([
+                'message' => 'Cannot permanently delete a product that has stock history or purchase orders.',
+            ], 422);
+        }
+
+        if ($product->image) {
+            Storage::disk('public')->delete($product->image);
+        }
+
+        $product->forceDelete();
+
+        return response()->noContent();
+    }
+
+    private function tombstone(string $value, int $id): string
+    {
+        return $value.'::deleted::'.$id;
+    }
+
+    private function stripTombstone(string $value, int $id): string
+    {
+        $suffix = '::deleted::'.$id;
+
+        return str_ends_with($value, $suffix) ? substr($value, 0, -strlen($suffix)) : $value;
     }
 
     private function normalize(array $data, bool $creating): array

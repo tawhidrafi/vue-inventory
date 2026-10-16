@@ -7,6 +7,7 @@ const items = ref([])
 const meta = ref(null)
 const page = ref(1)
 const search = ref('')
+const showDeleted = ref(false)
 const loading = ref(false)
 const pageError = ref('')
 
@@ -29,6 +30,7 @@ async function load() {
     const { data } = await categoriesApi.list({
       page: page.value,
       search: search.value || undefined,
+      trashed: showDeleted.value ? 1 : undefined,
     })
     items.value = data.data
     meta.value = data.meta
@@ -53,6 +55,16 @@ watch(search, () => {
     load()
   }, 300)
 })
+
+watch(showDeleted, () => {
+  page.value = 1
+  load()
+})
+
+// hide the "::deleted::<id>" suffix the backend adds on soft delete
+function displayName(name) {
+  return name ? name.replace(/::deleted::\d+$/, '') : name
+}
 
 function go(p) {
   page.value = p
@@ -117,6 +129,26 @@ async function remove(c) {
   }
 }
 
+async function restoreCategory(c) {
+  try {
+    await categoriesApi.restore(c.id)
+    await Promise.all([load(), loadOptions()])
+  } catch (e) {
+    alert(e.response?.data?.message ?? 'Restore failed.')
+  }
+}
+
+async function forceDeleteCategory(c) {
+  if (!confirm(`Permanently delete "${displayName(c.name)}"? This cannot be undone.`)) return
+  try {
+    await categoriesApi.forceDelete(c.id)
+    if (items.value.length === 1 && page.value > 1) page.value--
+    await load()
+  } catch (e) {
+    alert(e.response?.data?.message ?? 'Delete failed.')
+  }
+}
+
 onMounted(() => {
   load()
   loadOptions()
@@ -132,12 +164,18 @@ onMounted(() => {
       </button>
     </div>
 
-    <input
-      v-model="search"
-      type="text"
-      placeholder="Search categories..."
-      class="mb-4 w-full max-w-xs rounded border border-gray-300 bg-white px-3 py-2 text-sm"
-    />
+    <div class="mb-4 flex flex-wrap items-center gap-3">
+      <input
+        v-model="search"
+        type="text"
+        placeholder="Search categories..."
+        class="w-full max-w-xs rounded border border-gray-300 bg-white px-3 py-2 text-sm"
+      />
+      <label class="flex items-center gap-2 text-sm text-gray-700">
+        <input v-model="showDeleted" type="checkbox" class="h-4 w-4 rounded border-gray-300" />
+        Show deleted
+      </label>
+    </div>
 
     <p v-if="pageError" class="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{{ pageError }}</p>
 
@@ -159,12 +197,18 @@ onMounted(() => {
             <td colspan="4" class="px-4 py-6 text-center text-gray-500">No categories found.</td>
           </tr>
           <tr v-else v-for="c in items" :key="c.id" class="border-b last:border-0">
-            <td class="px-4 py-3 font-medium">{{ c.name }}</td>
+            <td class="px-4 py-3 font-medium">{{ displayName(c.name) }}</td>
             <td class="px-4 py-3 text-gray-600">{{ c.parent?.name ?? '-' }}</td>
             <td class="px-4 py-3 text-gray-600">{{ c.products_count }}</td>
             <td class="px-4 py-3 text-right">
-              <button @click="openEdit(c)" class="mr-3 text-blue-600 hover:underline">Edit</button>
-              <button @click="remove(c)" class="text-red-600 hover:underline">Delete</button>
+              <template v-if="showDeleted">
+                <button @click="restoreCategory(c)" class="mr-3 text-green-600 hover:underline">Restore</button>
+                <button @click="forceDeleteCategory(c)" class="text-red-600 hover:underline">Delete forever</button>
+              </template>
+              <template v-else>
+                <button @click="openEdit(c)" class="mr-3 text-blue-600 hover:underline">Edit</button>
+                <button @click="remove(c)" class="text-red-600 hover:underline">Delete</button>
+              </template>
             </td>
           </tr>
         </tbody>

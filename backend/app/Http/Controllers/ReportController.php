@@ -18,7 +18,7 @@ class ReportController extends Controller
             ->withSum('stocks as stock_total', 'quantity')
             ->orderBy('name')
             ->get()
-            ->filter(fn ($p) => (int) ($p->stock_total ?? 0) <= $p->reorder_level)
+            ->filter(fn ($p) => $p->reorder_level > 0 && (int) ($p->stock_total ?? 0) <= $p->reorder_level)
             ->values();
 
         return ProductResource::collection($products);
@@ -35,7 +35,7 @@ class ReportController extends Controller
             'categories' => Category::count(),
             'suppliers' => Supplier::count(),
             'warehouses' => Warehouse::count(),
-            'low_stock' => $products->filter(fn ($p) => (int) ($p->stock_total ?? 0) <= $p->reorder_level)->count(),
+            'low_stock' => $products->filter(fn ($p) => $p->reorder_level > 0 && (int) ($p->stock_total ?? 0) <= $p->reorder_level)->count(),
             'total_units' => (int) Stock::sum('quantity'),
         ]);
     }

@@ -17,7 +17,7 @@ class StockController extends Controller
             ->when($request->search, function ($q, $s) {
                 $q->whereHas('product', function ($q) use ($s) {
                     $q->where('name', 'like', "%{$s}%")
-                      ->orWhere('sku', 'like', "%{$s}%");
+                        ->orWhere('sku', 'like', "%{$s}%");
                 });
             })
             ->when($request->filled('product_id'), fn ($q) => $q->where('product_id', $request->integer('product_id')))
@@ -28,7 +28,7 @@ class StockController extends Controller
                     $sub->from('stocks as s')
                         ->join('products as p', 'p.id', '=', 's.product_id')
                         ->groupBy('s.product_id', 'p.reorder_level')
-                        ->havingRaw('SUM(s.quantity) <= p.reorder_level')
+                        ->havingRaw('p.reorder_level > 0 AND SUM(s.quantity) <= p.reorder_level')
                         ->select('s.product_id');
                 });
             })

@@ -28,4 +28,6 @@ export const productsApi = {
     return http.post(`/products/${id}`, fd)
   },
   remove: (id) => http.delete(`/products/${id}`),
+  restore: (id) => http.post(`/products/${id}/restore`),
+  forceDelete: (id) => http.delete(`/products/${id}/force`),
 }

@@ -6,4 +6,6 @@ export const categoriesApi = {
   create: (data) => http.post('/categories', data),
   update: (id, data) => http.put(`/categories/${id}`, data),
   remove: (id) => http.delete(`/categories/${id}`),
+  restore: (id) => http.post(`/categories/${id}/restore`),
+  forceDelete: (id) => http.delete(`/categories/${id}/force`),
 }

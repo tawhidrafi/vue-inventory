@@ -25,6 +25,7 @@ class ProductResource extends JsonResource
             'image' => $this->image,
             'is_active' => $this->is_active,
             'stock_total' => (int) ($this->stock_total ?? 0),
+            'suppliers_count' => $this->whenCounted('suppliers'),
             'created_at' => $this->created_at,
         ];
     }

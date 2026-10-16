@@ -15,6 +15,7 @@ const links = [
   { to: '/categories', label: 'Categories' },
   { to: '/products', label: 'Products' },
   { to: '/stock', label: 'Stock' },
+  { to: '/purchase-orders', label: 'Purchase Orders' },
   { to: '/suppliers', label: 'Suppliers' },
   { to: '/warehouses', label: 'Warehouses' },
 ]
