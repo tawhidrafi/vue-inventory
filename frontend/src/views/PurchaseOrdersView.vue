@@ -23,6 +23,14 @@ const statusStyles = {
   draft: 'bg-gray-200 text-gray-700',
   received: 'bg-green-100 text-green-700',
   cancelled: 'bg-red-100 text-red-700',
+  partially_received: 'bg-amber-100 text-amber-700',
+}
+
+const statusLabels = {
+  draft: 'Draft',
+  received: 'Received',
+  cancelled: 'Cancelled',
+  partially_received: 'Partial',
 }
 
 // product options for the line rows: the chosen supplier's linked products
@@ -43,8 +51,11 @@ const saving = ref(false)
 const showReceive = ref(false)
 const receiveTarget = ref(null)
 const receiveForm = reactive({ warehouse_id: '', update_cost: false })
+const receiveLines = ref([])
 const receiveErrors = ref({})
 const savingReceive = ref(false)
+
+const receiveErrorList = computed(() => Object.values(receiveErrors.value).flat())
 
 async function load() {
   loading.value = true
@@ -186,12 +197,34 @@ async function save() {
   }
 }
 
-function openReceive(po) {
+async function openReceive(po) {
   receiveTarget.value = po
   receiveForm.warehouse_id = ''
   receiveForm.update_cost = false
+  receiveLines.value = []
   receiveErrors.value = {}
   showReceive.value = true
+
+  try {
+    const { data } = await purchaseOrdersApi.show(po.id)
+    receiveLines.value = (data.data.items ?? []).map((i) => ({
+      id: i.id,
+      product_name: i.product_name,
+      product_sku: i.product_sku,
+      ordered: i.quantity,
+      received: i.quantity_received,
+      remaining: i.quantity_remaining,
+      quantity: i.quantity_remaining,
+    }))
+  } catch {
+    receiveErrors.value = { warehouse_id: ['Could not load the order lines.'] }
+  }
+}
+
+function receiveAll() {
+  receiveLines.value.forEach((line) => {
+    line.quantity = line.remaining
+  })
 }
 
 async function submitReceive() {
@@ -201,14 +234,19 @@ async function submitReceive() {
     await purchaseOrdersApi.receive(receiveTarget.value.id, {
       warehouse_id: Number(receiveForm.warehouse_id),
       update_cost: receiveForm.update_cost,
+      items: receiveLines.value.map((l) => ({ id: l.id, quantity: Number(l.quantity) || 0 })),
     })
     showReceive.value = false
     await load()
   } catch (e) {
+    receiveErrors.value = { warehouse_id: ['Something went wrong. Please try again.'] }
+
     if (e.response?.status === 422) {
       receiveErrors.value = e.response.data.errors ?? {}
-    } else {
-      receiveErrors.value = { warehouse_id: ['Something went wrong. Please try again.'] }
+      // the backend reports quantity problems under a custom "message" key
+      if (!Object.keys(receiveErrors.value).length && e.response.data.message) {
+        receiveErrors.value = { items: [e.response.data.message] }
+      }
     }
   } finally {
     savingReceive.value = false
@@ -265,6 +303,7 @@ onMounted(() => {
       <select v-model="statusFilter" class="rounded border border-gray-300 bg-white px-3 py-2 text-sm">
         <option value="">All statuses</option>
         <option value="draft">Draft</option>
+        <option value="partially_received">Partial</option>
         <option value="received">Received</option>
         <option value="cancelled">Cancelled</option>
       </select>
@@ -296,21 +335,23 @@ onMounted(() => {
             <td class="px-4 py-3 font-mono text-xs font-medium">{{ po.number }}</td>
             <td class="px-4 py-3 text-gray-700">{{ po.supplier?.name ?? '-' }}</td>
             <td class="px-4 py-3">
-              <span class="rounded-full px-2 py-0.5 text-xs font-medium capitalize" :class="statusStyles[po.status]">
-                {{ po.status }}
+              <span class="rounded-full px-2 py-0.5 text-xs font-medium" :class="statusStyles[po.status]">
+                {{ statusLabels[po.status] ?? po.status }}
               </span>
             </td>
             <td class="px-4 py-3 text-gray-600">{{ po.items_count }}</td>
             <td class="px-4 py-3 text-gray-600">{{ Number(po.total).toFixed(2) }}</td>
             <td class="px-4 py-3 text-gray-600">{{ po.expected_at ? po.expected_at.substring(0, 10) : '-' }}</td>
             <td class="px-4 py-3 text-right">
-              <template v-if="po.status === 'draft'">
+              <template v-if="po.status === 'draft' || po.status === 'partially_received'">
                 <button @click="openReceive(po)" class="mr-3 text-green-600 hover:underline">Receive</button>
-                <button @click="openEdit(po)" class="mr-3 text-blue-600 hover:underline">Edit</button>
                 <button @click="cancelPo(po)" class="mr-3 text-gray-600 hover:underline">Cancel</button>
+              </template>
+              <template v-if="po.status === 'draft'">
+                <button @click="openEdit(po)" class="mr-3 text-blue-600 hover:underline">Edit</button>
                 <button @click="remove(po)" class="text-red-600 hover:underline">Delete</button>
               </template>
-              <span v-else class="text-gray-400">-</span>
+              <span v-if="po.status === 'received' || po.status === 'cancelled'" class="text-gray-400">-</span>
             </td>
           </tr>
         </tbody>
@@ -384,10 +425,10 @@ onMounted(() => {
 
     <!-- receive modal -->
     <div v-if="showReceive" class="fixed inset-0 z-10 flex items-center justify-center bg-black/40 p-4">
-      <form @submit.prevent="submitReceive" class="w-full max-w-md space-y-4 rounded-lg bg-white p-6 shadow-lg">
+      <form @submit.prevent="submitReceive" class="w-full max-w-lg space-y-4 rounded-lg bg-white p-6 shadow-lg">
         <h3 class="text-lg font-semibold">Receive purchase order</h3>
         <p class="text-sm text-gray-500">
-          Receive all items of <span class="font-mono">{{ receiveTarget?.number }}</span> into a warehouse. This increases stock.
+          Receive items of <span class="font-mono">{{ receiveTarget?.number }}</span> into a warehouse. This increases stock.
         </p>
 
         <div>
@@ -396,13 +437,46 @@ onMounted(() => {
             <option value="">Select warehouse</option>
             <option v-for="w in warehouses" :key="w.id" :value="w.id">{{ w.name }}</option>
           </select>
-          <p v-if="receiveErrors.warehouse_id" class="mt-1 text-sm text-red-600">{{ receiveErrors.warehouse_id[0] }}</p>
+        </div>
+
+        <div>
+          <div class="mb-2 flex items-center justify-between">
+            <label class="text-sm font-medium">Items to receive</label>
+            <button type="button" @click="receiveAll" class="rounded border px-3 py-1 text-xs">Receive all</button>
+          </div>
+
+          <div class="space-y-2">
+            <div
+              v-for="line in receiveLines"
+              :key="line.id"
+              class="flex items-center gap-3 rounded border border-gray-200 px-3 py-2 text-sm"
+            >
+              <div class="flex-1">
+                <div class="font-medium">{{ line.product_name }}</div>
+                <div class="text-xs text-gray-500">
+                  Ordered {{ line.ordered }} · received {{ line.received }} · {{ line.remaining }} left
+                </div>
+              </div>
+              <input
+                v-model.number="line.quantity"
+                type="number"
+                min="0"
+                :max="line.remaining"
+                :disabled="line.remaining === 0"
+                class="w-20 rounded border border-gray-300 px-2 py-1 text-sm disabled:bg-gray-100"
+              />
+            </div>
+          </div>
         </div>
 
         <label class="flex items-center gap-2 text-sm text-gray-700">
           <input v-model="receiveForm.update_cost" type="checkbox" class="h-4 w-4 rounded border-gray-300" />
           Update each product's cost price to the ordered unit cost
         </label>
+
+        <ul v-if="receiveErrorList.length" class="space-y-1 rounded bg-red-50 px-3 py-2 text-sm text-red-700">
+          <li v-for="(msg, index) in receiveErrorList" :key="index">{{ msg }}</li>
+        </ul>
 
         <div class="flex justify-end gap-2">
           <button type="button" @click="showReceive = false" class="rounded border px-4 py-2 text-sm">Cancel</button>

@@ -153,6 +153,140 @@ class PurchaseOrderTest extends TestCase
         $this->assertSame('12.50', Product::find($product->id)->cost_price);
     }
 
+    public function test_a_purchase_order_can_be_received_in_parts(): void
+    {
+        $supplier = $this->makeSupplier();
+        $product = $this->makeProduct();
+        $warehouse = $this->makeWarehouse();
+
+        $order = $this->apiPost('/api/purchase-orders', [
+            'supplier_id' => $supplier->id,
+            'items' => [['product_id' => $product->id, 'quantity' => 10, 'unit_cost' => 2]],
+        ])->json('data');
+
+        $itemId = $order['items'][0]['id'];
+
+        $first = $this->apiPost("/api/purchase-orders/{$order['id']}/receive", [
+            'warehouse_id' => $warehouse->id,
+            'items' => [['id' => $itemId, 'quantity' => 4]],
+        ]);
+
+        $first->assertOk()
+            ->assertJsonPath('data.status', 'partially_received')
+            ->assertJsonPath('data.items.0.quantity_received', 4)
+            ->assertJsonPath('data.items.0.quantity_remaining', 6);
+
+        $this->assertNull($first->json('data.received_at'));
+        $this->assertDatabaseHas('stocks', [
+            'product_id' => $product->id,
+            'warehouse_id' => $warehouse->id,
+            'quantity' => 4,
+        ]);
+
+        $second = $this->apiPost("/api/purchase-orders/{$order['id']}/receive", [
+            'warehouse_id' => $warehouse->id,
+            'items' => [['id' => $itemId, 'quantity' => 6]],
+        ]);
+
+        $second->assertOk()
+            ->assertJsonPath('data.status', 'received')
+            ->assertJsonPath('data.items.0.quantity_received', 10);
+
+        $this->assertNotNull($second->json('data.received_at'));
+        $this->assertDatabaseHas('stocks', [
+            'product_id' => $product->id,
+            'warehouse_id' => $warehouse->id,
+            'quantity' => 10,
+        ]);
+    }
+
+    public function test_a_partial_receive_keeps_the_other_lines_untouched(): void
+    {
+        $supplier = $this->makeSupplier();
+        $first = $this->makeProduct();
+        $second = $this->makeProduct();
+        $warehouse = $this->makeWarehouse();
+
+        $order = $this->apiPost('/api/purchase-orders', [
+            'supplier_id' => $supplier->id,
+            'items' => [
+                ['product_id' => $first->id, 'quantity' => 3, 'unit_cost' => 1],
+                ['product_id' => $second->id, 'quantity' => 5, 'unit_cost' => 1],
+            ],
+        ])->json('data');
+
+        $this->apiPost("/api/purchase-orders/{$order['id']}/receive", [
+            'warehouse_id' => $warehouse->id,
+            'items' => [['id' => $order['items'][0]['id'], 'quantity' => 3]],
+        ])->assertOk()->assertJsonPath('data.status', 'partially_received');
+
+        $this->assertDatabaseHas('stocks', ['product_id' => $first->id, 'quantity' => 3]);
+        $this->assertDatabaseMissing('stocks', ['product_id' => $second->id]);
+    }
+
+    public function test_cannot_receive_more_than_remaining(): void
+    {
+        $supplier = $this->makeSupplier();
+        $product = $this->makeProduct();
+        $warehouse = $this->makeWarehouse();
+
+        $order = $this->apiPost('/api/purchase-orders', [
+            'supplier_id' => $supplier->id,
+            'items' => [['product_id' => $product->id, 'quantity' => 5, 'unit_cost' => 1]],
+        ])->json('data');
+
+        $this->apiPost("/api/purchase-orders/{$order['id']}/receive", [
+            'warehouse_id' => $warehouse->id,
+            'items' => [['id' => $order['items'][0]['id'], 'quantity' => 6]],
+        ])->assertStatus(422);
+
+        $this->assertDatabaseMissing('stocks', ['warehouse_id' => $warehouse->id]);
+    }
+
+    public function test_receiving_a_line_from_another_order_is_rejected(): void
+    {
+        $warehouse = $this->makeWarehouse();
+        $order = $this->draftOrder();
+
+        $other = $this->apiPost('/api/purchase-orders', [
+            'supplier_id' => $this->makeSupplier()->id,
+            'items' => [['product_id' => $this->makeProduct()->id, 'quantity' => 3, 'unit_cost' => 1]],
+        ])->json('data');
+
+        $this->apiPost("/api/purchase-orders/{$order['id']}/receive", [
+            'warehouse_id' => $warehouse->id,
+            'items' => [['id' => $other['items'][0]['id'], 'quantity' => 1]],
+        ])->assertStatus(422);
+    }
+
+    public function test_receiving_nothing_is_rejected(): void
+    {
+        $warehouse = $this->makeWarehouse();
+        $order = $this->draftOrder();
+
+        $this->apiPost("/api/purchase-orders/{$order['id']}/receive", [
+            'warehouse_id' => $warehouse->id,
+            'items' => [['id' => $order['items'][0]['id'], 'quantity' => 0]],
+        ])->assertStatus(422);
+
+        $this->assertDatabaseMissing('stocks', ['warehouse_id' => $warehouse->id]);
+    }
+
+    public function test_a_partially_received_order_can_be_cancelled(): void
+    {
+        $warehouse = $this->makeWarehouse();
+        $order = $this->draftOrder();
+
+        $this->apiPost("/api/purchase-orders/{$order['id']}/receive", [
+            'warehouse_id' => $warehouse->id,
+            'items' => [['id' => $order['items'][0]['id'], 'quantity' => 1]],
+        ])->assertOk()->assertJsonPath('data.status', 'partially_received');
+
+        $this->apiPost("/api/purchase-orders/{$order['id']}/cancel")
+            ->assertOk()
+            ->assertJsonPath('data.status', 'cancelled');
+    }
+
     /**
      * @return array<string, mixed>
      */

@@ -33,6 +33,7 @@ Route::middleware('auth.token')->group(function () {
     Route::post('stock-transfers', [StockTransferController::class, 'store']);
     Route::get('reports/low-stock', [ReportController::class, 'lowStock']);
     Route::get('reports/summary', [ReportController::class, 'summary']);
+    Route::get('reports/valuation', [ReportController::class, 'valuation']);
 
     Route::get('products/{product}/suppliers', [ProductSupplierController::class, 'index']);
     Route::post('products/{product}/suppliers', [ProductSupplierController::class, 'store']);

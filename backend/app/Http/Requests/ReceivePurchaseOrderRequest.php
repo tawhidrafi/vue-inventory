@@ -16,6 +16,9 @@ class ReceivePurchaseOrderRequest extends FormRequest
         return [
             'warehouse_id' => ['required', 'integer', 'exists:warehouses,id'],
             'update_cost' => ['boolean'],
+            'items' => ['nullable', 'array'],
+            'items.*.id' => ['required_with:items', 'integer', 'exists:purchase_order_items,id'],
+            'items.*.quantity' => ['required_with:items', 'integer', 'min:0'],
         ];
     }
 }

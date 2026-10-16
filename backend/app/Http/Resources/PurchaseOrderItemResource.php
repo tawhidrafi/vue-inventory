@@ -16,6 +16,8 @@ class PurchaseOrderItemResource extends JsonResource
             'product_sku' => $this->whenLoaded('product', fn () => $this->product->sku),
             'quantity' => $this->quantity,
             'quantity_received' => $this->quantity_received,
+            'quantity_remaining' => max(0, $this->quantity - $this->quantity_received),
+            'fully_received' => $this->quantity_received >= $this->quantity,
             'unit_cost' => $this->unit_cost,
             'line_total' => round($this->quantity * (float) $this->unit_cost, 2),
         ];
