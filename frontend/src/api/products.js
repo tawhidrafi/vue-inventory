@@ -30,4 +30,5 @@ export const productsApi = {
   remove: (id) => http.delete(`/products/${id}`),
   restore: (id) => http.post(`/products/${id}/restore`),
   forceDelete: (id) => http.delete(`/products/${id}/force`),
+  exportCsv: () => http.get('/exports/products', { responseType: 'blob' }),
 }

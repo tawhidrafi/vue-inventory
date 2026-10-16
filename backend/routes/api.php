@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductSupplierController;
 use App\Http\Controllers\PurchaseOrderController;
@@ -34,6 +35,9 @@ Route::middleware('auth.token')->group(function () {
     Route::get('reports/low-stock', [ReportController::class, 'lowStock']);
     Route::get('reports/summary', [ReportController::class, 'summary']);
     Route::get('reports/valuation', [ReportController::class, 'valuation']);
+
+    Route::get('exports/products', [ExportController::class, 'products']);
+    Route::get('exports/stock-movements', [ExportController::class, 'stockMovements']);
 
     Route::get('products/{product}/suppliers', [ProductSupplierController::class, 'index']);
     Route::post('products/{product}/suppliers', [ProductSupplierController::class, 'store']);

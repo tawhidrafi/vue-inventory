@@ -4,6 +4,9 @@ import { purchaseOrdersApi } from '@/api/purchaseOrders'
 import { suppliersApi } from '@/api/suppliers'
 import { warehousesApi } from '@/api/warehouses'
 import { productsApi } from '@/api/products'
+import { useToastStore } from '@/stores/toasts'
+
+const toast = useToastStore()
 
 const items = ref([])
 const meta = ref(null)
@@ -185,6 +188,7 @@ async function save() {
       await purchaseOrdersApi.create(payload)
     }
     showForm.value = false
+    toast.success(editingId.value ? 'Purchase order updated.' : 'Purchase order created.')
     await load()
   } catch (e) {
     if (e.response?.status === 422) {
@@ -237,6 +241,7 @@ async function submitReceive() {
       items: receiveLines.value.map((l) => ({ id: l.id, quantity: Number(l.quantity) || 0 })),
     })
     showReceive.value = false
+    toast.success('Stock received.')
     await load()
   } catch (e) {
     receiveErrors.value = { warehouse_id: ['Something went wrong. Please try again.'] }
@@ -258,8 +263,9 @@ async function cancelPo(po) {
   try {
     await purchaseOrdersApi.cancel(po.id)
     await load()
+    toast.success(`${po.number} cancelled.`)
   } catch (e) {
-    alert(e.response?.data?.message ?? 'Cancel failed.')
+    toast.error(e.response?.data?.message ?? 'Cancel failed.')
   }
 }
 
@@ -269,8 +275,9 @@ async function remove(po) {
     await purchaseOrdersApi.remove(po.id)
     if (items.value.length === 1 && page.value > 1) page.value--
     await load()
+    toast.success(`${po.number} deleted.`)
   } catch (e) {
-    alert(e.response?.data?.message ?? 'Delete failed.')
+    toast.error(e.response?.data?.message ?? 'Delete failed.')
   }
 }
 
@@ -343,6 +350,13 @@ onMounted(() => {
             <td class="px-4 py-3 text-gray-600">{{ Number(po.total).toFixed(2) }}</td>
             <td class="px-4 py-3 text-gray-600">{{ po.expected_at ? po.expected_at.substring(0, 10) : '-' }}</td>
             <td class="px-4 py-3 text-right">
+              <RouterLink
+                :to="{ name: 'purchase-order-print', params: { id: po.id } }"
+                target="_blank"
+                class="mr-3 text-gray-700 hover:underline"
+              >
+                Print
+              </RouterLink>
               <template v-if="po.status === 'draft' || po.status === 'partially_received'">
                 <button @click="openReceive(po)" class="mr-3 text-green-600 hover:underline">Receive</button>
                 <button @click="cancelPo(po)" class="mr-3 text-gray-600 hover:underline">Cancel</button>
@@ -351,7 +365,6 @@ onMounted(() => {
                 <button @click="openEdit(po)" class="mr-3 text-blue-600 hover:underline">Edit</button>
                 <button @click="remove(po)" class="text-red-600 hover:underline">Delete</button>
               </template>
-              <span v-if="po.status === 'received' || po.status === 'cancelled'" class="text-gray-400">-</span>
             </td>
           </tr>
         </tbody>

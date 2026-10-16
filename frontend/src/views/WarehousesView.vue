@@ -1,6 +1,9 @@
 <script setup>
 import { ref, reactive, watch, onMounted } from 'vue'
 import { warehousesApi } from '@/api/warehouses'
+import { useToastStore } from '@/stores/toasts'
+
+const toast = useToastStore()
 
 const items = ref([])
 const meta = ref(null)
@@ -82,6 +85,7 @@ async function save() {
       await warehousesApi.create(payload)
     }
     showForm.value = false
+    toast.success(editingId.value ? 'Warehouse updated.' : 'Warehouse created.')
     await load()
   } catch (e) {
     if (e.response?.status === 422) {
@@ -102,8 +106,9 @@ async function toggleActive(w) {
       is_active: !w.is_active,
     })
     await load()
+    toast.success(w.is_active ? 'Warehouse deactivated.' : 'Warehouse activated.')
   } catch (e) {
-    alert(e.response?.data?.message ?? 'Update failed.')
+    toast.error(e.response?.data?.message ?? 'Update failed.')
   }
 }
 
@@ -113,8 +118,9 @@ async function remove(w) {
     await warehousesApi.remove(w.id)
     if (items.value.length === 1 && page.value > 1) page.value--
     await load()
+    toast.success('Warehouse deleted.')
   } catch (e) {
-    alert(e.response?.data?.message ?? 'Delete failed.')
+    toast.error(e.response?.data?.message ?? 'Delete failed.')
   }
 }
 

@@ -4,6 +4,14 @@ import { productsApi } from '@/api/products'
 import { categoriesApi } from '@/api/categories'
 import { productSuppliersApi } from '@/api/productSuppliers'
 import { suppliersApi } from '@/api/suppliers'
+import { useToastStore } from '@/stores/toasts'
+import ProductDetailModal from '@/components/ProductDetailModal.vue'
+import { downloadResponse } from '@/utils/download'
+
+const toast = useToastStore()
+
+// product shown in the detail modal
+const detailProduct = ref(null)
 
 // image URLs are served by the backend origin, not the frontend one
 const API_ORIGIN = (import.meta.env.VITE_API_URL || '').replace(/\/api\/?$/, '')
@@ -169,6 +177,7 @@ async function save() {
       await productsApi.create(payload)
     }
     showForm.value = false
+    toast.success(editingId.value ? 'Product updated.' : 'Product created.')
     await load()
   } catch (e) {
     if (e.response?.status === 422) {
@@ -187,8 +196,9 @@ async function remove(p) {
     await productsApi.remove(p.id)
     if (items.value.length === 1 && page.value > 1) page.value--
     await load()
+    toast.success('Product deleted.')
   } catch (e) {
-    alert(e.response?.data?.message ?? 'Delete failed.')
+    toast.error(e.response?.data?.message ?? 'Delete failed.')
   }
 }
 
@@ -196,8 +206,9 @@ async function restoreProduct(p) {
   try {
     await productsApi.restore(p.id)
     await load()
+    toast.success('Product restored.')
   } catch (e) {
-    alert(e.response?.data?.message ?? 'Restore failed.')
+    toast.error(e.response?.data?.message ?? 'Restore failed.')
   }
 }
 
@@ -207,8 +218,9 @@ async function forceDeleteProduct(p) {
     await productsApi.forceDelete(p.id)
     if (items.value.length === 1 && page.value > 1) page.value--
     await load()
+    toast.success('Product permanently deleted.')
   } catch (e) {
-    alert(e.response?.data?.message ?? 'Delete failed.')
+    toast.error(e.response?.data?.message ?? 'Delete failed.')
   }
 }
 
@@ -287,6 +299,7 @@ async function saveLink() {
     }
     resetLinkForm()
     await Promise.all([loadLinks(), load()])
+    toast.success('Supplier link saved.')
   } catch (e) {
     if (e.response?.status === 422) {
       linkErrors.value = e.response.data.errors ?? {}
@@ -303,6 +316,17 @@ async function removeLink(l) {
   await productSuppliersApi.remove(supplierProduct.value.id, l.id)
   if (editingSupplierId.value === l.id) resetLinkForm()
   await Promise.all([loadLinks(), load()])
+  toast.success('Supplier unlinked.')
+}
+
+async function exportProducts() {
+  try {
+    const response = await productsApi.exportCsv()
+    downloadResponse(response.data, 'products.csv')
+    toast.success('Export ready.')
+  } catch {
+    toast.error('Export failed.')
+  }
 }
 
 onMounted(() => {
@@ -316,9 +340,14 @@ onMounted(() => {
   <div>
     <div class="mb-4 flex items-center justify-between">
       <h2 class="text-xl font-semibold">Products</h2>
-      <button @click="openCreate" class="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">
-        New product
-      </button>
+      <div class="flex gap-2">
+        <button @click="exportProducts" class="rounded border bg-white px-4 py-2 text-sm hover:bg-gray-50">
+          Export CSV
+        </button>
+        <button @click="openCreate" class="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">
+          New product
+        </button>
+      </div>
     </div>
 
     <div class="mb-4 flex flex-wrap items-center gap-3">
@@ -407,6 +436,7 @@ onMounted(() => {
                 <button @click="forceDeleteProduct(p)" class="text-red-600 hover:underline">Delete forever</button>
               </template>
               <template v-else>
+                <button @click="detailProduct = p" class="mr-3 text-gray-700 hover:underline">View</button>
                 <button @click="openSuppliers(p)" class="mr-3 text-gray-600 hover:underline">Suppliers</button>
                 <button @click="openEdit(p)" class="mr-3 text-blue-600 hover:underline">Edit</button>
                 <button @click="remove(p)" class="text-red-600 hover:underline">Delete</button>
@@ -613,5 +643,8 @@ onMounted(() => {
         </form>
       </div>
     </div>
+
+    <!-- product detail modal -->
+    <ProductDetailModal v-if="detailProduct" :product="detailProduct" @close="detailProduct = null" />
   </div>
 </template>

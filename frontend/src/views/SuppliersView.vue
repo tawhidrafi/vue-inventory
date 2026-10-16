@@ -1,6 +1,9 @@
 <script setup>
 import { ref, reactive, watch, onMounted } from 'vue'
 import { suppliersApi } from '@/api/suppliers'
+import { useToastStore } from '@/stores/toasts'
+
+const toast = useToastStore()
 
 const items = ref([])
 const meta = ref(null)
@@ -82,6 +85,7 @@ async function save() {
       await suppliersApi.create(payload)
     }
     showForm.value = false
+    toast.success(editingId.value ? 'Supplier updated.' : 'Supplier created.')
     await load()
   } catch (e) {
     if (e.response?.status === 422) {
@@ -100,8 +104,9 @@ async function remove(s) {
     await suppliersApi.remove(s.id)
     if (items.value.length === 1 && page.value > 1) page.value--
     await load()
+    toast.success('Supplier deleted.')
   } catch (e) {
-    alert(e.response?.data?.message ?? 'Delete failed.')
+    toast.error(e.response?.data?.message ?? 'Delete failed.')
   }
 }
 

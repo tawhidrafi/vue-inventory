@@ -3,6 +3,10 @@ import { ref, reactive, watch, onMounted } from 'vue'
 import { stocksApi } from '@/api/stocks'
 import { stockMovementsApi } from '@/api/stockMovements'
 import { warehousesApi } from '@/api/warehouses'
+import { useToastStore } from '@/stores/toasts'
+import { downloadResponse } from '@/utils/download'
+
+const toast = useToastStore()
 
 const items = ref([])
 const meta = ref(null)
@@ -111,6 +115,7 @@ async function submitAdjust() {
       note: adjustForm.note || null,
     })
     showAdjust.value = false
+    toast.success('Stock adjusted.')
     await load()
   } catch (e) {
     if (e.response?.status === 422) {
@@ -148,6 +153,7 @@ async function submitTransfer() {
       note: transferForm.note || null,
     })
     showTransfer.value = false
+    toast.success('Stock transferred.')
     await load()
   } catch (e) {
     if (e.response?.status === 422) {
@@ -177,6 +183,18 @@ async function openHistory(row) {
   }
 }
 
+async function exportMovements() {
+  try {
+    const response = await stockMovementsApi.exportCsv({
+      warehouse_id: warehouseFilter.value || undefined,
+    })
+    downloadResponse(response.data, 'stock-movements.csv')
+    toast.success('Export ready.')
+  } catch {
+    toast.error('Export failed.')
+  }
+}
+
 onMounted(() => {
   load()
   loadWarehouses()
@@ -187,6 +205,9 @@ onMounted(() => {
   <div>
     <div class="mb-4 flex items-center justify-between">
       <h2 class="text-xl font-semibold">Stock</h2>
+      <button @click="exportMovements" class="rounded border bg-white px-4 py-2 text-sm hover:bg-gray-50">
+        Export movements CSV
+      </button>
     </div>
 
     <div class="mb-4 flex flex-wrap items-center gap-3">

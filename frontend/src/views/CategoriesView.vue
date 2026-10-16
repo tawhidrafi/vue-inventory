@@ -1,6 +1,9 @@
 <script setup>
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { categoriesApi } from '@/api/categories'
+import { useToastStore } from '@/stores/toasts'
+
+const toast = useToastStore()
 
 // list state
 const items = ref([])
@@ -106,6 +109,7 @@ async function save() {
       await categoriesApi.create(payload)
     }
     showForm.value = false
+    toast.success(editingId.value ? 'Category updated.' : 'Category created.')
     await Promise.all([load(), loadOptions()])
   } catch (e) {
     if (e.response?.status === 422) {
@@ -124,8 +128,9 @@ async function remove(c) {
     await categoriesApi.remove(c.id)
     if (items.value.length === 1 && page.value > 1) page.value--
     await Promise.all([load(), loadOptions()])
+    toast.success('Category deleted.')
   } catch (e) {
-    alert(e.response?.data?.message ?? 'Delete failed.')
+    toast.error(e.response?.data?.message ?? 'Delete failed.')
   }
 }
 
@@ -133,8 +138,9 @@ async function restoreCategory(c) {
   try {
     await categoriesApi.restore(c.id)
     await Promise.all([load(), loadOptions()])
+    toast.success('Category restored.')
   } catch (e) {
-    alert(e.response?.data?.message ?? 'Restore failed.')
+    toast.error(e.response?.data?.message ?? 'Restore failed.')
   }
 }
 
@@ -144,8 +150,9 @@ async function forceDeleteCategory(c) {
     await categoriesApi.forceDelete(c.id)
     if (items.value.length === 1 && page.value > 1) page.value--
     await load()
+    toast.success('Category permanently deleted.')
   } catch (e) {
-    alert(e.response?.data?.message ?? 'Delete failed.')
+    toast.error(e.response?.data?.message ?? 'Delete failed.')
   }
 }
 

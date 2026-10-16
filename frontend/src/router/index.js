@@ -11,6 +11,12 @@ const router = createRouter({
     meta: { guest: true },
   },
   {
+    path: '/purchase-orders/:id/print',
+    name: 'purchase-order-print',
+    component: () => import('@/views/PrintPurchaseOrderView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/',
     component: () => import('@/layouts/AppLayout.vue'),
     meta: { requiresAuth: true },
