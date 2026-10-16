@@ -20,6 +20,7 @@ const links = [
   { to: '/purchase-orders', label: 'Purchase Orders' },
   { to: '/suppliers', label: 'Suppliers' },
   { to: '/warehouses', label: 'Warehouses' },
+  { to: '/activity', label: 'Activity', roles: ['admin', 'manager'] },
   { to: '/users', label: 'Users', roles: ['admin'] },
 ]
 

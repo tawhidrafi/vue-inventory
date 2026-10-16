@@ -106,12 +106,13 @@ class ProductController extends Controller
             ], 422);
         }
 
-        // soft delete, but free the unique sku/barcode so they can be reused
+        // soft delete, but free the unique sku/barcode so they can be reused.
+        // saved quietly so the audit log records one clean "deleted" entry.
         $product->sku = $this->tombstone($product->sku, $product->id);
         if ($product->barcode) {
             $product->barcode = $this->tombstone($product->barcode, $product->id);
         }
-        $product->save();
+        $product->saveQuietly();
 
         $product->delete();
 
@@ -143,7 +144,7 @@ class ProductController extends Controller
 
         $product->sku = $sku;
         $product->barcode = $barcode;
-        $product->save();
+        $product->saveQuietly();
         $product->restore();
 
         return new ProductResource($product->load('category'));

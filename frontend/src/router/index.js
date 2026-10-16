@@ -46,6 +46,12 @@ const router = createRouter({
           component: () => import('@/views/WarehousesView.vue'),
         },
         {
+          path: 'activity',
+          name: 'activity',
+          component: () => import('@/views/ActivityView.vue'),
+          meta: { roles: ['admin', 'manager'] },
+        },
+        {
           path: 'users',
           name: 'users',
           component: () => import('@/views/UsersView.vue'),

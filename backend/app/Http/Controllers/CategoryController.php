@@ -55,9 +55,10 @@ class CategoryController extends Controller
             ], 422);
         }
 
-        // soft delete, but free the unique name so it can be reused
+        // soft delete, but free the unique name so it can be reused.
+        // saved quietly so the audit log records one clean "deleted" entry.
         $category->name = $category->name.'::deleted::'.$category->id;
-        $category->save();
+        $category->saveQuietly();
 
         $category->delete();
 
@@ -84,7 +85,7 @@ class CategoryController extends Controller
         }
 
         $category->name = $name;
-        $category->save();
+        $category->saveQuietly();
         $category->restore();
 
         return new CategoryResource($category->load('parent'));
