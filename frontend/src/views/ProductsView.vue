@@ -5,10 +5,12 @@ import { categoriesApi } from '@/api/categories'
 import { productSuppliersApi } from '@/api/productSuppliers'
 import { suppliersApi } from '@/api/suppliers'
 import { useToastStore } from '@/stores/toasts'
+import { useAuthStore } from '@/stores/auth'
 import ProductDetailModal from '@/components/ProductDetailModal.vue'
 import { downloadResponse } from '@/utils/download'
 
 const toast = useToastStore()
+const auth = useAuthStore()
 
 // product shown in the detail modal
 const detailProduct = ref(null)
@@ -344,7 +346,7 @@ onMounted(() => {
         <button @click="exportProducts" class="rounded border bg-white px-4 py-2 text-sm hover:bg-gray-50">
           Export CSV
         </button>
-        <button @click="openCreate" class="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">
+        <button v-if="auth.canManage" @click="openCreate" class="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">
           New product
         </button>
       </div>
@@ -432,14 +434,19 @@ onMounted(() => {
             </td>
             <td class="px-4 py-3 text-right">
               <template v-if="showDeleted">
-                <button @click="restoreProduct(p)" class="mr-3 text-green-600 hover:underline">Restore</button>
-                <button @click="forceDeleteProduct(p)" class="text-red-600 hover:underline">Delete forever</button>
+                <template v-if="auth.canManage">
+                  <button @click="restoreProduct(p)" class="mr-3 text-green-600 hover:underline">Restore</button>
+                  <button @click="forceDeleteProduct(p)" class="text-red-600 hover:underline">Delete forever</button>
+                </template>
+                <span v-else class="text-gray-400">-</span>
               </template>
               <template v-else>
                 <button @click="detailProduct = p" class="mr-3 text-gray-700 hover:underline">View</button>
-                <button @click="openSuppliers(p)" class="mr-3 text-gray-600 hover:underline">Suppliers</button>
-                <button @click="openEdit(p)" class="mr-3 text-blue-600 hover:underline">Edit</button>
-                <button @click="remove(p)" class="text-red-600 hover:underline">Delete</button>
+                <template v-if="auth.canManage">
+                  <button @click="openSuppliers(p)" class="mr-3 text-gray-600 hover:underline">Suppliers</button>
+                  <button @click="openEdit(p)" class="mr-3 text-blue-600 hover:underline">Edit</button>
+                  <button @click="remove(p)" class="text-red-600 hover:underline">Delete</button>
+                </template>
               </template>
             </td>
           </tr>

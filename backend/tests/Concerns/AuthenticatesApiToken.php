@@ -16,9 +16,9 @@ trait AuthenticatesApiToken
     /**
      * Create a user and a valid API token, and remember them for requests.
      */
-    protected function authenticate(): static
+    protected function authenticate(string $role = 'admin'): static
     {
-        $this->apiUser = User::factory()->create();
+        $this->apiUser = User::factory()->create(['role' => $role]);
 
         $plain = Str::random(64);
 

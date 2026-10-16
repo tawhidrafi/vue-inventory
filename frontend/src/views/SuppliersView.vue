@@ -2,8 +2,10 @@
 import { ref, reactive, watch, onMounted } from 'vue'
 import { suppliersApi } from '@/api/suppliers'
 import { useToastStore } from '@/stores/toasts'
+import { useAuthStore } from '@/stores/auth'
 
 const toast = useToastStore()
+const auth = useAuthStore()
 
 const items = ref([])
 const meta = ref(null)
@@ -117,7 +119,7 @@ onMounted(load)
   <div>
     <div class="mb-4 flex items-center justify-between">
       <h2 class="text-xl font-semibold">Suppliers</h2>
-      <button @click="openCreate" class="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">
+      <button v-if="auth.canManage" @click="openCreate" class="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">
         New supplier
       </button>
     </div>
@@ -153,8 +155,11 @@ onMounted(load)
             <td class="px-4 py-3 text-gray-600">{{ s.email ?? '-' }}</td>
             <td class="px-4 py-3 text-gray-600">{{ s.phone ?? '-' }}</td>
             <td class="px-4 py-3 text-right">
-              <button @click="openEdit(s)" class="mr-3 text-blue-600 hover:underline">Edit</button>
-              <button @click="remove(s)" class="text-red-600 hover:underline">Delete</button>
+              <template v-if="auth.canManage">
+                <button @click="openEdit(s)" class="mr-3 text-blue-600 hover:underline">Edit</button>
+                <button @click="remove(s)" class="text-red-600 hover:underline">Delete</button>
+              </template>
+              <span v-else class="text-gray-400">-</span>
             </td>
           </tr>
         </tbody>

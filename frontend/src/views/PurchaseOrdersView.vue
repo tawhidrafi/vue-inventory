@@ -5,8 +5,10 @@ import { suppliersApi } from '@/api/suppliers'
 import { warehousesApi } from '@/api/warehouses'
 import { productsApi } from '@/api/products'
 import { useToastStore } from '@/stores/toasts'
+import { useAuthStore } from '@/stores/auth'
 
 const toast = useToastStore()
+const auth = useAuthStore()
 
 const items = ref([])
 const meta = ref(null)
@@ -291,7 +293,7 @@ onMounted(() => {
   <div>
     <div class="mb-4 flex items-center justify-between">
       <h2 class="text-xl font-semibold">Purchase Orders</h2>
-      <button @click="openCreate" class="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">
+      <button v-if="auth.canManage" @click="openCreate" class="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">
         New purchase order
       </button>
     </div>
@@ -357,13 +359,25 @@ onMounted(() => {
               >
                 Print
               </RouterLink>
-              <template v-if="po.status === 'draft' || po.status === 'partially_received'">
-                <button @click="openReceive(po)" class="mr-3 text-green-600 hover:underline">Receive</button>
-                <button @click="cancelPo(po)" class="mr-3 text-gray-600 hover:underline">Cancel</button>
-              </template>
-              <template v-if="po.status === 'draft'">
-                <button @click="openEdit(po)" class="mr-3 text-blue-600 hover:underline">Edit</button>
-                <button @click="remove(po)" class="text-red-600 hover:underline">Delete</button>
+              <button
+                v-if="po.status === 'draft' || po.status === 'partially_received'"
+                @click="openReceive(po)"
+                class="mr-3 text-green-600 hover:underline"
+              >
+                Receive
+              </button>
+              <template v-if="auth.canManage">
+                <button
+                  v-if="po.status === 'draft' || po.status === 'partially_received'"
+                  @click="cancelPo(po)"
+                  class="mr-3 text-gray-600 hover:underline"
+                >
+                  Cancel
+                </button>
+                <template v-if="po.status === 'draft'">
+                  <button @click="openEdit(po)" class="mr-3 text-blue-600 hover:underline">Edit</button>
+                  <button @click="remove(po)" class="text-red-600 hover:underline">Delete</button>
+                </template>
               </template>
             </td>
           </tr>

@@ -11,6 +11,7 @@ use App\Http\Controllers\StockController;
 use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\StockTransferController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
@@ -22,16 +23,23 @@ Route::middleware('auth.token')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
 
-    Route::apiResource('categories', CategoryController::class);
-    Route::apiResource('products', ProductController::class);
-    Route::apiResource('suppliers', SupplierController::class);
-    Route::apiResource('warehouses', WarehouseController::class);
+    // ---- reads: available to every authenticated user ----
+    Route::get('categories', [CategoryController::class, 'index']);
+    Route::get('categories/{category}', [CategoryController::class, 'show']);
+    Route::get('products', [ProductController::class, 'index']);
+    Route::get('products/{product}', [ProductController::class, 'show']);
+    Route::get('suppliers', [SupplierController::class, 'index']);
+    Route::get('suppliers/{supplier}', [SupplierController::class, 'show']);
+    Route::get('warehouses', [WarehouseController::class, 'index']);
+    Route::get('warehouses/{warehouse}', [WarehouseController::class, 'show']);
 
     Route::get('products/{product}/stock', [StockController::class, 'forProduct']);
     Route::get('stocks', [StockController::class, 'index']);
     Route::get('stock-movements', [StockMovementController::class, 'index']);
-    Route::post('stock-movements', [StockMovementController::class, 'store']);
-    Route::post('stock-transfers', [StockTransferController::class, 'store']);
+
+    Route::get('products/{product}/suppliers', [ProductSupplierController::class, 'index']);
+    Route::get('suppliers/{supplier}/products', [SupplierController::class, 'products']);
+
     Route::get('reports/low-stock', [ReportController::class, 'lowStock']);
     Route::get('reports/summary', [ReportController::class, 'summary']);
     Route::get('reports/valuation', [ReportController::class, 'valuation']);
@@ -39,23 +47,51 @@ Route::middleware('auth.token')->group(function () {
     Route::get('exports/products', [ExportController::class, 'products']);
     Route::get('exports/stock-movements', [ExportController::class, 'stockMovements']);
 
-    Route::get('products/{product}/suppliers', [ProductSupplierController::class, 'index']);
-    Route::post('products/{product}/suppliers', [ProductSupplierController::class, 'store']);
-    Route::put('products/{product}/suppliers/{supplier}', [ProductSupplierController::class, 'update']);
-    Route::delete('products/{product}/suppliers/{supplier}', [ProductSupplierController::class, 'destroy']);
-
-    Route::get('suppliers/{supplier}/products', [SupplierController::class, 'products']);
-
-    Route::post('products/{id}/restore', [ProductController::class, 'restore']);
-    Route::delete('products/{id}/force', [ProductController::class, 'forceDestroy']);
-    Route::post('categories/{id}/restore', [CategoryController::class, 'restore']);
-    Route::delete('categories/{id}/force', [CategoryController::class, 'forceDestroy']);
-
     Route::get('purchase-orders', [PurchaseOrderController::class, 'index']);
-    Route::post('purchase-orders', [PurchaseOrderController::class, 'store']);
     Route::get('purchase-orders/{purchaseOrder}', [PurchaseOrderController::class, 'show']);
-    Route::put('purchase-orders/{purchaseOrder}', [PurchaseOrderController::class, 'update']);
-    Route::delete('purchase-orders/{purchaseOrder}', [PurchaseOrderController::class, 'destroy']);
+
+    // ---- daily operations: available to every authenticated user ----
+    Route::post('stock-movements', [StockMovementController::class, 'store']);
+    Route::post('stock-transfers', [StockTransferController::class, 'store']);
     Route::post('purchase-orders/{purchaseOrder}/receive', [PurchaseOrderController::class, 'receive']);
-    Route::post('purchase-orders/{purchaseOrder}/cancel', [PurchaseOrderController::class, 'cancel']);
+
+    // ---- management: admins and managers ----
+    Route::middleware('role:admin,manager')->group(function () {
+        Route::post('categories', [CategoryController::class, 'store']);
+        Route::put('categories/{category}', [CategoryController::class, 'update']);
+        Route::delete('categories/{category}', [CategoryController::class, 'destroy']);
+        Route::post('categories/{id}/restore', [CategoryController::class, 'restore']);
+        Route::delete('categories/{id}/force', [CategoryController::class, 'forceDestroy']);
+
+        Route::post('products', [ProductController::class, 'store']);
+        Route::put('products/{product}', [ProductController::class, 'update']);
+        Route::delete('products/{product}', [ProductController::class, 'destroy']);
+        Route::post('products/{id}/restore', [ProductController::class, 'restore']);
+        Route::delete('products/{id}/force', [ProductController::class, 'forceDestroy']);
+
+        Route::post('products/{product}/suppliers', [ProductSupplierController::class, 'store']);
+        Route::put('products/{product}/suppliers/{supplier}', [ProductSupplierController::class, 'update']);
+        Route::delete('products/{product}/suppliers/{supplier}', [ProductSupplierController::class, 'destroy']);
+
+        Route::post('suppliers', [SupplierController::class, 'store']);
+        Route::put('suppliers/{supplier}', [SupplierController::class, 'update']);
+        Route::delete('suppliers/{supplier}', [SupplierController::class, 'destroy']);
+
+        Route::post('warehouses', [WarehouseController::class, 'store']);
+        Route::put('warehouses/{warehouse}', [WarehouseController::class, 'update']);
+        Route::delete('warehouses/{warehouse}', [WarehouseController::class, 'destroy']);
+
+        Route::post('purchase-orders', [PurchaseOrderController::class, 'store']);
+        Route::put('purchase-orders/{purchaseOrder}', [PurchaseOrderController::class, 'update']);
+        Route::delete('purchase-orders/{purchaseOrder}', [PurchaseOrderController::class, 'destroy']);
+        Route::post('purchase-orders/{purchaseOrder}/cancel', [PurchaseOrderController::class, 'cancel']);
+    });
+
+    // ---- user management: admins only ----
+    Route::middleware('role:admin')->group(function () {
+        Route::get('users', [UserController::class, 'index']);
+        Route::post('users', [UserController::class, 'store']);
+        Route::put('users/{user}', [UserController::class, 'update']);
+        Route::delete('users/{user}', [UserController::class, 'destroy']);
+    });
 });

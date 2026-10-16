@@ -2,8 +2,10 @@
 import { ref, reactive, computed, watch, onMounted } from 'vue'
 import { categoriesApi } from '@/api/categories'
 import { useToastStore } from '@/stores/toasts'
+import { useAuthStore } from '@/stores/auth'
 
 const toast = useToastStore()
+const auth = useAuthStore()
 
 // list state
 const items = ref([])
@@ -166,7 +168,7 @@ onMounted(() => {
   <div>
     <div class="mb-4 flex items-center justify-between">
       <h2 class="text-xl font-semibold">Categories</h2>
-      <button @click="openCreate" class="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">
+      <button v-if="auth.canManage" @click="openCreate" class="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">
         New category
       </button>
     </div>
@@ -208,14 +210,17 @@ onMounted(() => {
             <td class="px-4 py-3 text-gray-600">{{ c.parent?.name ?? '-' }}</td>
             <td class="px-4 py-3 text-gray-600">{{ c.products_count }}</td>
             <td class="px-4 py-3 text-right">
-              <template v-if="showDeleted">
-                <button @click="restoreCategory(c)" class="mr-3 text-green-600 hover:underline">Restore</button>
-                <button @click="forceDeleteCategory(c)" class="text-red-600 hover:underline">Delete forever</button>
+              <template v-if="auth.canManage">
+                <template v-if="showDeleted">
+                  <button @click="restoreCategory(c)" class="mr-3 text-green-600 hover:underline">Restore</button>
+                  <button @click="forceDeleteCategory(c)" class="text-red-600 hover:underline">Delete forever</button>
+                </template>
+                <template v-else>
+                  <button @click="openEdit(c)" class="mr-3 text-blue-600 hover:underline">Edit</button>
+                  <button @click="remove(c)" class="text-red-600 hover:underline">Delete</button>
+                </template>
               </template>
-              <template v-else>
-                <button @click="openEdit(c)" class="mr-3 text-blue-600 hover:underline">Edit</button>
-                <button @click="remove(c)" class="text-red-600 hover:underline">Delete</button>
-              </template>
+              <span v-else class="text-gray-400">-</span>
             </td>
           </tr>
         </tbody>

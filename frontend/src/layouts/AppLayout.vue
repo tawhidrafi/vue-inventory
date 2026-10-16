@@ -1,4 +1,5 @@
 <script setup>
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
@@ -19,7 +20,12 @@ const links = [
   { to: '/purchase-orders', label: 'Purchase Orders' },
   { to: '/suppliers', label: 'Suppliers' },
   { to: '/warehouses', label: 'Warehouses' },
+  { to: '/users', label: 'Users', roles: ['admin'] },
 ]
+
+const visibleLinks = computed(() =>
+  links.filter((l) => !l.roles || l.roles.includes(auth.user?.role)),
+)
 </script>
 
 <template>
@@ -29,7 +35,7 @@ const links = [
         <h1 class="text-lg font-semibold">Inventory</h1>
         <nav class="flex gap-4 text-sm">
           <RouterLink
-            v-for="l in links"
+            v-for="l in visibleLinks"
             :key="l.to"
             :to="l.to"
             class="text-gray-600 hover:text-gray-900"
@@ -40,7 +46,12 @@ const links = [
         </nav>
       </div>
       <div class="flex items-center gap-4">
-        <span class="text-sm text-gray-600">{{ auth.user?.name }}</span>
+        <span class="text-sm text-gray-600">
+          {{ auth.user?.name }}
+          <span v-if="auth.role" class="ml-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs capitalize text-gray-600">
+            {{ auth.role }}
+          </span>
+        </span>
         <button @click="logout" class="rounded bg-gray-800 px-3 py-1.5 text-sm text-white hover:bg-gray-700">
           Logout
         </button>

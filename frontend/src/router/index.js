@@ -29,6 +29,7 @@ const router = createRouter({
       { path: 'purchase-orders', name: 'purchase-orders', component: () => import('@/views/PurchaseOrdersView.vue') },
       { path: 'suppliers', name: 'suppliers', component: () => import('@/views/SuppliersView.vue') },
       { path: 'warehouses', name: 'warehouses', component: () => import('@/views/WarehousesView.vue') },
+      { path: 'users', name: 'users', component: () => import('@/views/UsersView.vue'), meta: { roles: ['admin'] } },
     ],
   },
 ],
@@ -48,6 +49,11 @@ router.beforeEach(async (to) => {
         auth.clear()
         return { name: 'login' }
       }
+    }
+
+    // role-gated routes
+    if (to.meta.roles && !to.meta.roles.includes(auth.user?.role)) {
+      return { name: 'dashboard' }
     }
   }
 
