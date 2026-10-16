@@ -26,6 +26,8 @@ export const useAuthStore = defineStore('auth', () => {
   async function logout() {
     try {
       await http.post('/logout')
+    } catch {
+      // the token may already be invalid — clearing locally is enough
     } finally {
       clear()
     }

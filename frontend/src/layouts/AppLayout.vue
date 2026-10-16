@@ -48,11 +48,17 @@ const visibleLinks = computed(() =>
       <div class="flex items-center gap-4">
         <span class="text-sm text-gray-600">
           {{ auth.user?.name }}
-          <span v-if="auth.role" class="ml-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs capitalize text-gray-600">
+          <span
+            v-if="auth.role"
+            class="ml-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs capitalize text-gray-600"
+          >
             {{ auth.role }}
           </span>
         </span>
-        <button @click="logout" class="rounded bg-gray-800 px-3 py-1.5 text-sm text-white hover:bg-gray-700">
+        <button
+          @click="logout"
+          class="rounded bg-gray-800 px-3 py-1.5 text-sm text-white hover:bg-gray-700"
+        >
           Logout
         </button>
       </div>

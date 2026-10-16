@@ -231,7 +231,14 @@ const suppliersOptions = ref([])
 const showSuppliers = ref(false)
 const supplierProduct = ref(null)
 const supplierLinks = ref([])
-const linkForm = reactive({ supplier_id: '', supplier_sku: '', unit_cost: '', lead_time_days: '', min_order_quantity: '', is_preferred: false })
+const linkForm = reactive({
+  supplier_id: '',
+  supplier_sku: '',
+  unit_cost: '',
+  lead_time_days: '',
+  min_order_quantity: '',
+  is_preferred: false,
+})
 const linkErrors = ref({})
 const savingLink = ref(false)
 const editingSupplierId = ref(null)
@@ -343,10 +350,17 @@ onMounted(() => {
     <div class="mb-4 flex items-center justify-between">
       <h2 class="text-xl font-semibold">Products</h2>
       <div class="flex gap-2">
-        <button @click="exportProducts" class="rounded border bg-white px-4 py-2 text-sm hover:bg-gray-50">
+        <button
+          @click="exportProducts"
+          class="rounded border bg-white px-4 py-2 text-sm hover:bg-gray-50"
+        >
           Export CSV
         </button>
-        <button v-if="auth.canManage" @click="openCreate" class="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">
+        <button
+          v-if="auth.canManage"
+          @click="openCreate"
+          class="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+        >
           New product
         </button>
       </div>
@@ -359,11 +373,17 @@ onMounted(() => {
         placeholder="Search by name, SKU or barcode..."
         class="w-full max-w-xs rounded border border-gray-300 bg-white px-3 py-2 text-sm"
       />
-      <select v-model="categoryFilter" class="rounded border border-gray-300 bg-white px-3 py-2 text-sm">
+      <select
+        v-model="categoryFilter"
+        class="rounded border border-gray-300 bg-white px-3 py-2 text-sm"
+      >
         <option value="">All categories</option>
         <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
       </select>
-      <select v-model="activeFilter" class="rounded border border-gray-300 bg-white px-3 py-2 text-sm">
+      <select
+        v-model="activeFilter"
+        class="rounded border border-gray-300 bg-white px-3 py-2 text-sm"
+      >
         <option value="">All statuses</option>
         <option value="1">Active</option>
         <option value="0">Inactive</option>
@@ -374,7 +394,9 @@ onMounted(() => {
       </label>
     </div>
 
-    <p v-if="pageError" class="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{{ pageError }}</p>
+    <p v-if="pageError" class="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">
+      {{ pageError }}
+    </p>
 
     <div class="overflow-x-auto rounded-lg bg-white shadow">
       <table class="w-full text-left text-sm">
@@ -414,7 +436,11 @@ onMounted(() => {
             <td class="px-4 py-3 text-gray-600">{{ Number(p.cost_price).toFixed(2) }}</td>
             <td class="px-4 py-3 text-gray-600">{{ Number(p.sell_price).toFixed(2) }}</td>
             <td class="px-4 py-3">
-              <span :class="p.stock_total <= p.reorder_level ? 'font-semibold text-red-600' : 'text-gray-600'">
+              <span
+                :class="
+                  p.stock_total <= p.reorder_level ? 'font-semibold text-red-600' : 'text-gray-600'
+                "
+              >
                 {{ p.stock_total }}
               </span>
               <span
@@ -435,16 +461,26 @@ onMounted(() => {
             <td class="px-4 py-3 text-right">
               <template v-if="showDeleted">
                 <template v-if="auth.canManage">
-                  <button @click="restoreProduct(p)" class="mr-3 text-green-600 hover:underline">Restore</button>
-                  <button @click="forceDeleteProduct(p)" class="text-red-600 hover:underline">Delete forever</button>
+                  <button @click="restoreProduct(p)" class="mr-3 text-green-600 hover:underline">
+                    Restore
+                  </button>
+                  <button @click="forceDeleteProduct(p)" class="text-red-600 hover:underline">
+                    Delete forever
+                  </button>
                 </template>
                 <span v-else class="text-gray-400">-</span>
               </template>
               <template v-else>
-                <button @click="detailProduct = p" class="mr-3 text-gray-700 hover:underline">View</button>
+                <button @click="detailProduct = p" class="mr-3 text-gray-700 hover:underline">
+                  View
+                </button>
                 <template v-if="auth.canManage">
-                  <button @click="openSuppliers(p)" class="mr-3 text-gray-600 hover:underline">Suppliers</button>
-                  <button @click="openEdit(p)" class="mr-3 text-blue-600 hover:underline">Edit</button>
+                  <button @click="openSuppliers(p)" class="mr-3 text-gray-600 hover:underline">
+                    Suppliers
+                  </button>
+                  <button @click="openEdit(p)" class="mr-3 text-blue-600 hover:underline">
+                    Edit
+                  </button>
                   <button @click="remove(p)" class="text-red-600 hover:underline">Delete</button>
                 </template>
               </template>
@@ -455,30 +491,59 @@ onMounted(() => {
     </div>
 
     <div v-if="meta && meta.last_page > 1" class="mt-4 flex items-center justify-between text-sm">
-      <span class="text-gray-600">Page {{ meta.current_page }} of {{ meta.last_page }} ({{ meta.total }} total)</span>
+      <span class="text-gray-600"
+        >Page {{ meta.current_page }} of {{ meta.last_page }} ({{ meta.total }} total)</span
+      >
       <div class="flex gap-2">
-        <button :disabled="meta.current_page <= 1" @click="go(meta.current_page - 1)" class="rounded border bg-white px-3 py-1 disabled:opacity-50">Previous</button>
-        <button :disabled="meta.current_page >= meta.last_page" @click="go(meta.current_page + 1)" class="rounded border bg-white px-3 py-1 disabled:opacity-50">Next</button>
+        <button
+          :disabled="meta.current_page <= 1"
+          @click="go(meta.current_page - 1)"
+          class="rounded border bg-white px-3 py-1 disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <button
+          :disabled="meta.current_page >= meta.last_page"
+          @click="go(meta.current_page + 1)"
+          class="rounded border bg-white px-3 py-1 disabled:opacity-50"
+        >
+          Next
+        </button>
       </div>
     </div>
 
-    <div v-if="showForm" class="fixed inset-0 z-10 flex items-center justify-center overflow-y-auto bg-black/40 p-4">
-      <form @submit.prevent="save" class="my-8 w-full max-w-2xl space-y-4 rounded-lg bg-white p-6 shadow-lg">
+    <div
+      v-if="showForm"
+      class="fixed inset-0 z-10 flex items-center justify-center overflow-y-auto bg-black/40 p-4"
+    >
+      <form
+        @submit.prevent="save"
+        class="my-8 w-full max-w-2xl space-y-4 rounded-lg bg-white p-6 shadow-lg"
+      >
         <h3 class="text-lg font-semibold">{{ editingId ? 'Edit product' : 'New product' }}</h3>
 
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="mb-1 block text-sm font-medium">Name</label>
-            <input v-model="form.name" type="text" class="w-full rounded border border-gray-300 px-3 py-2" />
+            <input
+              v-model="form.name"
+              type="text"
+              class="w-full rounded border border-gray-300 px-3 py-2"
+            />
             <p v-if="errors.name" class="mt-1 text-sm text-red-600">{{ errors.name[0] }}</p>
           </div>
           <div>
             <label class="mb-1 block text-sm font-medium">Category</label>
-            <select v-model="form.category_id" class="w-full rounded border border-gray-300 bg-white px-3 py-2">
+            <select
+              v-model="form.category_id"
+              class="w-full rounded border border-gray-300 bg-white px-3 py-2"
+            >
               <option value="">None</option>
               <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
             </select>
-            <p v-if="errors.category_id" class="mt-1 text-sm text-red-600">{{ errors.category_id[0] }}</p>
+            <p v-if="errors.category_id" class="mt-1 text-sm text-red-600">
+              {{ errors.category_id[0] }}
+            </p>
           </div>
         </div>
 
@@ -495,7 +560,11 @@ onMounted(() => {
           </div>
           <div>
             <label class="mb-1 block text-sm font-medium">Barcode</label>
-            <input v-model="form.barcode" type="text" class="w-full rounded border border-gray-300 px-3 py-2" />
+            <input
+              v-model="form.barcode"
+              type="text"
+              class="w-full rounded border border-gray-300 px-3 py-2"
+            />
             <p v-if="errors.barcode" class="mt-1 text-sm text-red-600">{{ errors.barcode[0] }}</p>
           </div>
         </div>
@@ -503,39 +572,82 @@ onMounted(() => {
         <div class="grid grid-cols-4 gap-4">
           <div>
             <label class="mb-1 block text-sm font-medium">Unit</label>
-            <input v-model="form.unit" type="text" class="w-full rounded border border-gray-300 px-3 py-2" />
+            <input
+              v-model="form.unit"
+              type="text"
+              class="w-full rounded border border-gray-300 px-3 py-2"
+            />
             <p v-if="errors.unit" class="mt-1 text-sm text-red-600">{{ errors.unit[0] }}</p>
           </div>
           <div>
             <label class="mb-1 block text-sm font-medium">Cost</label>
-            <input v-model="form.cost_price" type="number" step="0.01" min="0" class="w-full rounded border border-gray-300 px-3 py-2" />
-            <p v-if="errors.cost_price" class="mt-1 text-sm text-red-600">{{ errors.cost_price[0] }}</p>
+            <input
+              v-model="form.cost_price"
+              type="number"
+              step="0.01"
+              min="0"
+              class="w-full rounded border border-gray-300 px-3 py-2"
+            />
+            <p v-if="errors.cost_price" class="mt-1 text-sm text-red-600">
+              {{ errors.cost_price[0] }}
+            </p>
           </div>
           <div>
             <label class="mb-1 block text-sm font-medium">Sell</label>
-            <input v-model="form.sell_price" type="number" step="0.01" min="0" class="w-full rounded border border-gray-300 px-3 py-2" />
-            <p v-if="errors.sell_price" class="mt-1 text-sm text-red-600">{{ errors.sell_price[0] }}</p>
+            <input
+              v-model="form.sell_price"
+              type="number"
+              step="0.01"
+              min="0"
+              class="w-full rounded border border-gray-300 px-3 py-2"
+            />
+            <p v-if="errors.sell_price" class="mt-1 text-sm text-red-600">
+              {{ errors.sell_price[0] }}
+            </p>
           </div>
           <div>
             <label class="mb-1 block text-sm font-medium">Reorder level</label>
-            <input v-model="form.reorder_level" type="number" min="0" class="w-full rounded border border-gray-300 px-3 py-2" />
-            <p v-if="errors.reorder_level" class="mt-1 text-sm text-red-600">{{ errors.reorder_level[0] }}</p>
+            <input
+              v-model="form.reorder_level"
+              type="number"
+              min="0"
+              class="w-full rounded border border-gray-300 px-3 py-2"
+            />
+            <p v-if="errors.reorder_level" class="mt-1 text-sm text-red-600">
+              {{ errors.reorder_level[0] }}
+            </p>
           </div>
         </div>
 
         <div>
           <label class="mb-1 block text-sm font-medium">Description</label>
-          <textarea v-model="form.description" rows="2" class="w-full rounded border border-gray-300 px-3 py-2"></textarea>
-          <p v-if="errors.description" class="mt-1 text-sm text-red-600">{{ errors.description[0] }}</p>
+          <textarea
+            v-model="form.description"
+            rows="2"
+            class="w-full rounded border border-gray-300 px-3 py-2"
+          ></textarea>
+          <p v-if="errors.description" class="mt-1 text-sm text-red-600">
+            {{ errors.description[0] }}
+          </p>
         </div>
 
         <div class="flex items-start gap-4">
           <div class="flex-1">
             <label class="mb-1 block text-sm font-medium">Image</label>
-            <input type="file" accept="image/*" @change="onFileChange" class="block w-full text-sm" />
+            <input
+              type="file"
+              accept="image/*"
+              @change="onFileChange"
+              class="block w-full text-sm"
+            />
             <p v-if="errors.image" class="mt-1 text-sm text-red-600">{{ errors.image[0] }}</p>
           </div>
-          <img v-if="imagePreview" :src="imagePreview" alt="" class="h-16 w-16 rounded object-cover" />
+          <img
+            v-if="imagePreview"
+            :src="imagePreview"
+            alt=""
+            class="h-16 w-16 rounded object-cover"
+          />
         </div>
 
         <label class="flex items-center gap-2 text-sm">
@@ -544,8 +656,13 @@ onMounted(() => {
         </label>
 
         <div class="flex justify-end gap-2">
-          <button type="button" @click="showForm = false" class="rounded border px-4 py-2 text-sm">Cancel</button>
-          <button :disabled="saving" class="rounded bg-blue-600 px-4 py-2 text-sm text-white disabled:opacity-50">
+          <button type="button" @click="showForm = false" class="rounded border px-4 py-2 text-sm">
+            Cancel
+          </button>
+          <button
+            :disabled="saving"
+            class="rounded bg-blue-600 px-4 py-2 text-sm text-white disabled:opacity-50"
+          >
             {{ saving ? 'Saving...' : 'Save' }}
           </button>
         </div>
@@ -553,14 +670,19 @@ onMounted(() => {
     </div>
 
     <!-- supplier links modal -->
-    <div v-if="showSuppliers" class="fixed inset-0 z-10 flex items-center justify-center bg-black/40 p-4">
+    <div
+      v-if="showSuppliers"
+      class="fixed inset-0 z-10 flex items-center justify-center bg-black/40 p-4"
+    >
       <div class="flex max-h-[85vh] w-full max-w-2xl flex-col rounded-lg bg-white p-6 shadow-lg">
         <div class="mb-4 flex items-center justify-between">
           <div>
             <h3 class="text-lg font-semibold">Suppliers</h3>
             <p class="text-sm text-gray-500">{{ supplierProduct?.name }}</p>
           </div>
-          <button @click="showSuppliers = false" class="rounded border px-3 py-1 text-sm">Close</button>
+          <button @click="showSuppliers = false" class="rounded border px-3 py-1 text-sm">
+            Close
+          </button>
         </div>
 
         <div class="overflow-y-auto">
@@ -578,7 +700,9 @@ onMounted(() => {
             </thead>
             <tbody>
               <tr v-if="!supplierLinks.length">
-                <td colspan="7" class="px-3 py-4 text-center text-gray-500">No suppliers linked yet.</td>
+                <td colspan="7" class="px-3 py-4 text-center text-gray-500">
+                  No suppliers linked yet.
+                </td>
               </tr>
               <tr v-else v-for="l in supplierLinks" :key="l.id" class="border-b last:border-0">
                 <td class="px-3 py-2 font-medium">{{ l.name }}</td>
@@ -587,12 +711,20 @@ onMounted(() => {
                 <td class="px-3 py-2 text-gray-600">{{ l.lead_time_days ?? '-' }}</td>
                 <td class="px-3 py-2 text-gray-600">{{ l.min_order_quantity ?? '-' }}</td>
                 <td class="px-3 py-2">
-                  <span v-if="l.is_preferred" class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Preferred</span>
+                  <span
+                    v-if="l.is_preferred"
+                    class="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700"
+                    >Preferred</span
+                  >
                   <span v-else class="text-gray-400">-</span>
                 </td>
                 <td class="px-3 py-2 text-right">
-                  <button @click="editLink(l)" class="mr-3 text-blue-600 hover:underline">Edit</button>
-                  <button @click="removeLink(l)" class="text-red-600 hover:underline">Remove</button>
+                  <button @click="editLink(l)" class="mr-3 text-blue-600 hover:underline">
+                    Edit
+                  </button>
+                  <button @click="removeLink(l)" class="text-red-600 hover:underline">
+                    Remove
+                  </button>
                 </td>
               </tr>
             </tbody>
@@ -600,7 +732,9 @@ onMounted(() => {
         </div>
 
         <form @submit.prevent="saveLink" class="mt-4 space-y-3 border-t pt-4">
-          <h4 class="text-sm font-semibold">{{ editingSupplierId ? 'Edit link' : 'Add supplier' }}</h4>
+          <h4 class="text-sm font-semibold">
+            {{ editingSupplierId ? 'Edit link' : 'Add supplier' }}
+          </h4>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
@@ -611,40 +745,78 @@ onMounted(() => {
                 class="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm disabled:bg-gray-100"
               >
                 <option value="">Select supplier</option>
-                <option v-for="s in suppliersOptions" :key="s.id" :value="s.id">{{ s.name }}</option>
+                <option v-for="s in suppliersOptions" :key="s.id" :value="s.id">
+                  {{ s.name }}
+                </option>
               </select>
-              <p v-if="linkErrors.supplier_id" class="mt-1 text-xs text-red-600">{{ linkErrors.supplier_id[0] }}</p>
+              <p v-if="linkErrors.supplier_id" class="mt-1 text-xs text-red-600">
+                {{ linkErrors.supplier_id[0] }}
+              </p>
             </div>
             <div>
               <label class="mb-1 block text-xs font-medium">Supplier SKU</label>
-              <input v-model="linkForm.supplier_sku" type="text" class="w-full rounded border border-gray-300 px-3 py-2 text-sm" />
+              <input
+                v-model="linkForm.supplier_sku"
+                type="text"
+                class="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+              />
             </div>
           </div>
 
           <div class="grid grid-cols-3 gap-3">
             <div>
               <label class="mb-1 block text-xs font-medium">Unit cost</label>
-              <input v-model="linkForm.unit_cost" type="number" step="0.01" min="0" class="w-full rounded border border-gray-300 px-3 py-2 text-sm" />
+              <input
+                v-model="linkForm.unit_cost"
+                type="number"
+                step="0.01"
+                min="0"
+                class="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+              />
             </div>
             <div>
               <label class="mb-1 block text-xs font-medium">Lead time (days)</label>
-              <input v-model="linkForm.lead_time_days" type="number" min="0" class="w-full rounded border border-gray-300 px-3 py-2 text-sm" />
+              <input
+                v-model="linkForm.lead_time_days"
+                type="number"
+                min="0"
+                class="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+              />
             </div>
             <div>
               <label class="mb-1 block text-xs font-medium">Min order qty</label>
-              <input v-model="linkForm.min_order_quantity" type="number" min="0" class="w-full rounded border border-gray-300 px-3 py-2 text-sm" />
+              <input
+                v-model="linkForm.min_order_quantity"
+                type="number"
+                min="0"
+                class="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+              />
             </div>
           </div>
 
           <label class="flex items-center gap-2 text-sm">
-            <input v-model="linkForm.is_preferred" type="checkbox" class="h-4 w-4 rounded border-gray-300" />
+            <input
+              v-model="linkForm.is_preferred"
+              type="checkbox"
+              class="h-4 w-4 rounded border-gray-300"
+            />
             Preferred supplier
           </label>
 
           <div class="flex justify-end gap-2">
-            <button v-if="editingSupplierId" type="button" @click="resetLinkForm" class="rounded border px-3 py-1.5 text-sm">Cancel edit</button>
-            <button :disabled="savingLink" class="rounded bg-blue-600 px-4 py-1.5 text-sm text-white disabled:opacity-50">
-              {{ savingLink ? 'Saving...' : (editingSupplierId ? 'Update' : 'Add') }}
+            <button
+              v-if="editingSupplierId"
+              type="button"
+              @click="resetLinkForm"
+              class="rounded border px-3 py-1.5 text-sm"
+            >
+              Cancel edit
+            </button>
+            <button
+              :disabled="savingLink"
+              class="rounded bg-blue-600 px-4 py-1.5 text-sm text-white disabled:opacity-50"
+            >
+              {{ savingLink ? 'Saving...' : editingSupplierId ? 'Update' : 'Add' }}
             </button>
           </div>
         </form>
@@ -652,6 +824,10 @@ onMounted(() => {
     </div>
 
     <!-- product detail modal -->
-    <ProductDetailModal v-if="detailProduct" :product="detailProduct" @close="detailProduct = null" />
+    <ProductDetailModal
+      v-if="detailProduct"
+      :product="detailProduct"
+      @close="detailProduct = null"
+    />
   </div>
 </template>

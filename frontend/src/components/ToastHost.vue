@@ -11,7 +11,9 @@ const styles = {
 </script>
 
 <template>
-  <div class="pointer-events-none fixed right-4 top-4 z-50 flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-2">
+  <div
+    class="pointer-events-none fixed right-4 top-4 z-50 flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-2"
+  >
     <div
       v-for="t in toasts.items"
       :key="t.id"
@@ -19,7 +21,9 @@ const styles = {
       :class="styles[t.type] ?? styles.info"
     >
       <span>{{ t.message }}</span>
-      <button type="button" class="text-white/80 hover:text-white" @click="toasts.remove(t.id)">✕</button>
+      <button type="button" class="text-white/80 hover:text-white" @click="toasts.remove(t.id)">
+        ✕
+      </button>
     </div>
   </div>
 </template>

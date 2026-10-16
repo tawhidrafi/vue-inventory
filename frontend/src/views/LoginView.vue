@@ -45,13 +45,21 @@ async function submit() {
 
       <div>
         <label class="mb-1 block text-sm font-medium">Email</label>
-        <input v-model="email" type="email" class="w-full rounded border border-gray-300 px-3 py-2" />
+        <input
+          v-model="email"
+          type="email"
+          class="w-full rounded border border-gray-300 px-3 py-2"
+        />
         <p v-if="errors.email" class="mt-1 text-sm text-red-600">{{ errors.email[0] }}</p>
       </div>
 
       <div>
         <label class="mb-1 block text-sm font-medium">Password</label>
-        <input v-model="password" type="password" class="w-full rounded border border-gray-300 px-3 py-2" />
+        <input
+          v-model="password"
+          type="password"
+          class="w-full rounded border border-gray-300 px-3 py-2"
+        />
         <p v-if="errors.password" class="mt-1 text-sm text-red-600">{{ errors.password[0] }}</p>
       </div>
 

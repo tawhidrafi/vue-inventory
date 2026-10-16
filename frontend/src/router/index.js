@@ -4,35 +4,56 @@ import { useAuthStore } from '@/stores/auth'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-  {
-    path: '/login',
-    name: 'login',
-    component: () => import('@/views/LoginView.vue'),
-    meta: { guest: true },
-  },
-  {
-    path: '/purchase-orders/:id/print',
-    name: 'purchase-order-print',
-    component: () => import('@/views/PrintPurchaseOrderView.vue'),
-    meta: { requiresAuth: true },
-  },
-  {
-    path: '/',
-    component: () => import('@/layouts/AppLayout.vue'),
-    meta: { requiresAuth: true },
-    children: [
-      { path: '', name: 'dashboard', component: () => import('@/views/DashboardView.vue') },
-      { path: 'categories', name: 'categories', component: () => import('@/views/CategoriesView.vue') },
-      { path: 'products', name: 'products', component: () => import('@/views/ProductsView.vue') },
-      { path: 'stock', name: 'stock', component: () => import('@/views/StockView.vue') },
-      { path: 'reports', name: 'reports', component: () => import('@/views/ReportsView.vue') },
-      { path: 'purchase-orders', name: 'purchase-orders', component: () => import('@/views/PurchaseOrdersView.vue') },
-      { path: 'suppliers', name: 'suppliers', component: () => import('@/views/SuppliersView.vue') },
-      { path: 'warehouses', name: 'warehouses', component: () => import('@/views/WarehousesView.vue') },
-      { path: 'users', name: 'users', component: () => import('@/views/UsersView.vue'), meta: { roles: ['admin'] } },
-    ],
-  },
-],
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('@/views/LoginView.vue'),
+      meta: { guest: true },
+    },
+    {
+      path: '/purchase-orders/:id/print',
+      name: 'purchase-order-print',
+      component: () => import('@/views/PrintPurchaseOrderView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/',
+      component: () => import('@/layouts/AppLayout.vue'),
+      meta: { requiresAuth: true },
+      children: [
+        { path: '', name: 'dashboard', component: () => import('@/views/DashboardView.vue') },
+        {
+          path: 'categories',
+          name: 'categories',
+          component: () => import('@/views/CategoriesView.vue'),
+        },
+        { path: 'products', name: 'products', component: () => import('@/views/ProductsView.vue') },
+        { path: 'stock', name: 'stock', component: () => import('@/views/StockView.vue') },
+        { path: 'reports', name: 'reports', component: () => import('@/views/ReportsView.vue') },
+        {
+          path: 'purchase-orders',
+          name: 'purchase-orders',
+          component: () => import('@/views/PurchaseOrdersView.vue'),
+        },
+        {
+          path: 'suppliers',
+          name: 'suppliers',
+          component: () => import('@/views/SuppliersView.vue'),
+        },
+        {
+          path: 'warehouses',
+          name: 'warehouses',
+          component: () => import('@/views/WarehousesView.vue'),
+        },
+        {
+          path: 'users',
+          name: 'users',
+          component: () => import('@/views/UsersView.vue'),
+          meta: { roles: ['admin'] },
+        },
+      ],
+    },
+  ],
 })
 
 router.beforeEach(async (to) => {

@@ -168,7 +168,11 @@ onMounted(() => {
   <div>
     <div class="mb-4 flex items-center justify-between">
       <h2 class="text-xl font-semibold">Categories</h2>
-      <button v-if="auth.canManage" @click="openCreate" class="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">
+      <button
+        v-if="auth.canManage"
+        @click="openCreate"
+        class="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+      >
         New category
       </button>
     </div>
@@ -186,7 +190,9 @@ onMounted(() => {
       </label>
     </div>
 
-    <p v-if="pageError" class="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{{ pageError }}</p>
+    <p v-if="pageError" class="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">
+      {{ pageError }}
+    </p>
 
     <div class="overflow-x-auto rounded-lg bg-white shadow">
       <table class="w-full text-left text-sm">
@@ -212,11 +218,17 @@ onMounted(() => {
             <td class="px-4 py-3 text-right">
               <template v-if="auth.canManage">
                 <template v-if="showDeleted">
-                  <button @click="restoreCategory(c)" class="mr-3 text-green-600 hover:underline">Restore</button>
-                  <button @click="forceDeleteCategory(c)" class="text-red-600 hover:underline">Delete forever</button>
+                  <button @click="restoreCategory(c)" class="mr-3 text-green-600 hover:underline">
+                    Restore
+                  </button>
+                  <button @click="forceDeleteCategory(c)" class="text-red-600 hover:underline">
+                    Delete forever
+                  </button>
                 </template>
                 <template v-else>
-                  <button @click="openEdit(c)" class="mr-3 text-blue-600 hover:underline">Edit</button>
+                  <button @click="openEdit(c)" class="mr-3 text-blue-600 hover:underline">
+                    Edit
+                  </button>
                   <button @click="remove(c)" class="text-red-600 hover:underline">Delete</button>
                 </template>
               </template>
@@ -228,7 +240,9 @@ onMounted(() => {
     </div>
 
     <div v-if="meta && meta.last_page > 1" class="mt-4 flex items-center justify-between text-sm">
-      <span class="text-gray-600">Page {{ meta.current_page }} of {{ meta.last_page }} ({{ meta.total }} total)</span>
+      <span class="text-gray-600"
+        >Page {{ meta.current_page }} of {{ meta.last_page }} ({{ meta.total }} total)</span
+      >
       <div class="flex gap-2">
         <button
           :disabled="meta.current_page <= 1"
@@ -248,13 +262,23 @@ onMounted(() => {
     </div>
 
     <!-- create / edit modal -->
-    <div v-if="showForm" class="fixed inset-0 z-10 flex items-center justify-center bg-black/40 p-4">
-      <form @submit.prevent="save" class="w-full max-w-md space-y-4 rounded-lg bg-white p-6 shadow-lg">
+    <div
+      v-if="showForm"
+      class="fixed inset-0 z-10 flex items-center justify-center bg-black/40 p-4"
+    >
+      <form
+        @submit.prevent="save"
+        class="w-full max-w-md space-y-4 rounded-lg bg-white p-6 shadow-lg"
+      >
         <h3 class="text-lg font-semibold">{{ editingId ? 'Edit category' : 'New category' }}</h3>
 
         <div>
           <label class="mb-1 block text-sm font-medium">Name</label>
-          <input v-model="form.name" type="text" class="w-full rounded border border-gray-300 px-3 py-2" />
+          <input
+            v-model="form.name"
+            type="text"
+            class="w-full rounded border border-gray-300 px-3 py-2"
+          />
           <p v-if="errors.name" class="mt-1 text-sm text-red-600">{{ errors.name[0] }}</p>
         </div>
 
@@ -269,13 +293,24 @@ onMounted(() => {
 
         <div>
           <label class="mb-1 block text-sm font-medium">Description</label>
-          <textarea v-model="form.description" rows="3" class="w-full rounded border border-gray-300 px-3 py-2"></textarea>
-          <p v-if="errors.description" class="mt-1 text-sm text-red-600">{{ errors.description[0] }}</p>
+          <textarea
+            v-model="form.description"
+            rows="3"
+            class="w-full rounded border border-gray-300 px-3 py-2"
+          ></textarea>
+          <p v-if="errors.description" class="mt-1 text-sm text-red-600">
+            {{ errors.description[0] }}
+          </p>
         </div>
 
         <div class="flex justify-end gap-2">
-          <button type="button" @click="showForm = false" class="rounded border px-4 py-2 text-sm">Cancel</button>
-          <button :disabled="saving" class="rounded bg-blue-600 px-4 py-2 text-sm text-white disabled:opacity-50">
+          <button type="button" @click="showForm = false" class="rounded border px-4 py-2 text-sm">
+            Cancel
+          </button>
+          <button
+            :disabled="saving"
+            class="rounded bg-blue-600 px-4 py-2 text-sm text-white disabled:opacity-50"
+          >
             {{ saving ? 'Saving...' : 'Save' }}
           </button>
         </div>

@@ -82,11 +82,7 @@ async function load() {
 }
 
 async function loadLookups() {
-  const [s, w, p] = await Promise.all([
-    suppliersApi.all(),
-    warehousesApi.all(),
-    productsApi.all(),
-  ])
+  const [s, w, p] = await Promise.all([suppliersApi.all(), warehousesApi.all(), productsApi.all()])
   suppliers.value = s.data.data
   warehouses.value = w.data.data
   allProducts.value = p.data.data
@@ -293,7 +289,11 @@ onMounted(() => {
   <div>
     <div class="mb-4 flex items-center justify-between">
       <h2 class="text-xl font-semibold">Purchase Orders</h2>
-      <button v-if="auth.canManage" @click="openCreate" class="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">
+      <button
+        v-if="auth.canManage"
+        @click="openCreate"
+        class="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+      >
         New purchase order
       </button>
     </div>
@@ -305,11 +305,17 @@ onMounted(() => {
         placeholder="Search by PO number..."
         class="w-full max-w-xs rounded border border-gray-300 bg-white px-3 py-2 text-sm"
       />
-      <select v-model="supplierFilter" class="rounded border border-gray-300 bg-white px-3 py-2 text-sm">
+      <select
+        v-model="supplierFilter"
+        class="rounded border border-gray-300 bg-white px-3 py-2 text-sm"
+      >
         <option value="">All suppliers</option>
         <option v-for="s in suppliers" :key="s.id" :value="s.id">{{ s.name }}</option>
       </select>
-      <select v-model="statusFilter" class="rounded border border-gray-300 bg-white px-3 py-2 text-sm">
+      <select
+        v-model="statusFilter"
+        class="rounded border border-gray-300 bg-white px-3 py-2 text-sm"
+      >
         <option value="">All statuses</option>
         <option value="draft">Draft</option>
         <option value="partially_received">Partial</option>
@@ -318,7 +324,9 @@ onMounted(() => {
       </select>
     </div>
 
-    <p v-if="pageError" class="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{{ pageError }}</p>
+    <p v-if="pageError" class="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">
+      {{ pageError }}
+    </p>
 
     <div class="overflow-x-auto rounded-lg bg-white shadow">
       <table class="w-full text-left text-sm">
@@ -338,19 +346,26 @@ onMounted(() => {
             <td colspan="7" class="px-4 py-6 text-center text-gray-500">Loading...</td>
           </tr>
           <tr v-else-if="!items.length">
-            <td colspan="7" class="px-4 py-6 text-center text-gray-500">No purchase orders found.</td>
+            <td colspan="7" class="px-4 py-6 text-center text-gray-500">
+              No purchase orders found.
+            </td>
           </tr>
           <tr v-else v-for="po in items" :key="po.id" class="border-b last:border-0">
             <td class="px-4 py-3 font-mono text-xs font-medium">{{ po.number }}</td>
             <td class="px-4 py-3 text-gray-700">{{ po.supplier?.name ?? '-' }}</td>
             <td class="px-4 py-3">
-              <span class="rounded-full px-2 py-0.5 text-xs font-medium" :class="statusStyles[po.status]">
+              <span
+                class="rounded-full px-2 py-0.5 text-xs font-medium"
+                :class="statusStyles[po.status]"
+              >
                 {{ statusLabels[po.status] ?? po.status }}
               </span>
             </td>
             <td class="px-4 py-3 text-gray-600">{{ po.items_count }}</td>
             <td class="px-4 py-3 text-gray-600">{{ Number(po.total).toFixed(2) }}</td>
-            <td class="px-4 py-3 text-gray-600">{{ po.expected_at ? po.expected_at.substring(0, 10) : '-' }}</td>
+            <td class="px-4 py-3 text-gray-600">
+              {{ po.expected_at ? po.expected_at.substring(0, 10) : '-' }}
+            </td>
             <td class="px-4 py-3 text-right">
               <RouterLink
                 :to="{ name: 'purchase-order-print', params: { id: po.id } }"
@@ -375,7 +390,9 @@ onMounted(() => {
                   Cancel
                 </button>
                 <template v-if="po.status === 'draft'">
-                  <button @click="openEdit(po)" class="mr-3 text-blue-600 hover:underline">Edit</button>
+                  <button @click="openEdit(po)" class="mr-3 text-blue-600 hover:underline">
+                    Edit
+                  </button>
                   <button @click="remove(po)" class="text-red-600 hover:underline">Delete</button>
                 </template>
               </template>
@@ -386,64 +403,128 @@ onMounted(() => {
     </div>
 
     <div v-if="meta && meta.last_page > 1" class="mt-4 flex items-center justify-between text-sm">
-      <span class="text-gray-600">Page {{ meta.current_page }} of {{ meta.last_page }} ({{ meta.total }} total)</span>
+      <span class="text-gray-600"
+        >Page {{ meta.current_page }} of {{ meta.last_page }} ({{ meta.total }} total)</span
+      >
       <div class="flex gap-2">
-        <button :disabled="meta.current_page <= 1" @click="go(meta.current_page - 1)" class="rounded border bg-white px-3 py-1 disabled:opacity-50">Previous</button>
-        <button :disabled="meta.current_page >= meta.last_page" @click="go(meta.current_page + 1)" class="rounded border bg-white px-3 py-1 disabled:opacity-50">Next</button>
+        <button
+          :disabled="meta.current_page <= 1"
+          @click="go(meta.current_page - 1)"
+          class="rounded border bg-white px-3 py-1 disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <button
+          :disabled="meta.current_page >= meta.last_page"
+          @click="go(meta.current_page + 1)"
+          class="rounded border bg-white px-3 py-1 disabled:opacity-50"
+        >
+          Next
+        </button>
       </div>
     </div>
 
     <!-- create / edit modal -->
-    <div v-if="showForm" class="fixed inset-0 z-10 flex items-center justify-center overflow-y-auto bg-black/40 p-4">
-      <form @submit.prevent="save" class="my-8 w-full max-w-3xl space-y-4 rounded-lg bg-white p-6 shadow-lg">
-        <h3 class="text-lg font-semibold">{{ editingId ? 'Edit purchase order' : 'New purchase order' }}</h3>
+    <div
+      v-if="showForm"
+      class="fixed inset-0 z-10 flex items-center justify-center overflow-y-auto bg-black/40 p-4"
+    >
+      <form
+        @submit.prevent="save"
+        class="my-8 w-full max-w-3xl space-y-4 rounded-lg bg-white p-6 shadow-lg"
+      >
+        <h3 class="text-lg font-semibold">
+          {{ editingId ? 'Edit purchase order' : 'New purchase order' }}
+        </h3>
 
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="mb-1 block text-sm font-medium">Supplier</label>
-            <select v-model="form.supplier_id" @change="onSupplierChange" class="w-full rounded border border-gray-300 bg-white px-3 py-2">
+            <select
+              v-model="form.supplier_id"
+              @change="onSupplierChange"
+              class="w-full rounded border border-gray-300 bg-white px-3 py-2"
+            >
               <option value="">Select supplier</option>
               <option v-for="s in suppliers" :key="s.id" :value="s.id">{{ s.name }}</option>
             </select>
-            <p v-if="errors.supplier_id" class="mt-1 text-sm text-red-600">{{ errors.supplier_id[0] }}</p>
+            <p v-if="errors.supplier_id" class="mt-1 text-sm text-red-600">
+              {{ errors.supplier_id[0] }}
+            </p>
           </div>
           <div>
             <label class="mb-1 block text-sm font-medium">Expected date</label>
-            <input v-model="form.expected_at" type="date" class="w-full rounded border border-gray-300 px-3 py-2" />
-            <p v-if="errors.expected_at" class="mt-1 text-sm text-red-600">{{ errors.expected_at[0] }}</p>
+            <input
+              v-model="form.expected_at"
+              type="date"
+              class="w-full rounded border border-gray-300 px-3 py-2"
+            />
+            <p v-if="errors.expected_at" class="mt-1 text-sm text-red-600">
+              {{ errors.expected_at[0] }}
+            </p>
           </div>
         </div>
 
         <div>
           <div class="mb-2 flex items-center justify-between">
             <label class="text-sm font-medium">Items</label>
-            <button type="button" @click="addLine" class="rounded border px-3 py-1 text-xs">Add line</button>
+            <button type="button" @click="addLine" class="rounded border px-3 py-1 text-xs">
+              Add line
+            </button>
           </div>
           <p v-if="errors.items" class="mb-2 text-sm text-red-600">{{ errors.items[0] }}</p>
 
           <div class="space-y-2">
             <div v-for="(line, index) in form.items" :key="index" class="flex items-center gap-2">
-              <select v-model="line.product_id" @change="onProductChange(line)" class="flex-1 rounded border border-gray-300 bg-white px-3 py-2 text-sm">
+              <select
+                v-model="line.product_id"
+                @change="onProductChange(line)"
+                class="flex-1 rounded border border-gray-300 bg-white px-3 py-2 text-sm"
+              >
                 <option value="">Select product</option>
                 <option v-for="o in productOptions" :key="o.id" :value="o.id">
                   {{ o.name }}{{ o.sku ? ` (${o.sku})` : '' }}
                 </option>
               </select>
-              <input v-model="line.quantity" type="number" min="1" placeholder="Qty" class="w-24 rounded border border-gray-300 px-3 py-2 text-sm" />
-              <input v-model="line.unit_cost" type="number" step="0.01" min="0" placeholder="Unit cost" class="w-28 rounded border border-gray-300 px-3 py-2 text-sm" />
-              <button type="button" @click="removeLine(index)" class="text-red-600 hover:underline">✕</button>
+              <input
+                v-model="line.quantity"
+                type="number"
+                min="1"
+                placeholder="Qty"
+                class="w-24 rounded border border-gray-300 px-3 py-2 text-sm"
+              />
+              <input
+                v-model="line.unit_cost"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="Unit cost"
+                class="w-28 rounded border border-gray-300 px-3 py-2 text-sm"
+              />
+              <button type="button" @click="removeLine(index)" class="text-red-600 hover:underline">
+                ✕
+              </button>
             </div>
           </div>
         </div>
 
         <div>
           <label class="mb-1 block text-sm font-medium">Notes</label>
-          <textarea v-model="form.notes" rows="2" class="w-full rounded border border-gray-300 px-3 py-2"></textarea>
+          <textarea
+            v-model="form.notes"
+            rows="2"
+            class="w-full rounded border border-gray-300 px-3 py-2"
+          ></textarea>
         </div>
 
         <div class="flex justify-end gap-2">
-          <button type="button" @click="showForm = false" class="rounded border px-4 py-2 text-sm">Cancel</button>
-          <button :disabled="saving" class="rounded bg-blue-600 px-4 py-2 text-sm text-white disabled:opacity-50">
+          <button type="button" @click="showForm = false" class="rounded border px-4 py-2 text-sm">
+            Cancel
+          </button>
+          <button
+            :disabled="saving"
+            class="rounded bg-blue-600 px-4 py-2 text-sm text-white disabled:opacity-50"
+          >
             {{ saving ? 'Saving...' : 'Save' }}
           </button>
         </div>
@@ -451,16 +532,26 @@ onMounted(() => {
     </div>
 
     <!-- receive modal -->
-    <div v-if="showReceive" class="fixed inset-0 z-10 flex items-center justify-center bg-black/40 p-4">
-      <form @submit.prevent="submitReceive" class="w-full max-w-lg space-y-4 rounded-lg bg-white p-6 shadow-lg">
+    <div
+      v-if="showReceive"
+      class="fixed inset-0 z-10 flex items-center justify-center bg-black/40 p-4"
+    >
+      <form
+        @submit.prevent="submitReceive"
+        class="w-full max-w-lg space-y-4 rounded-lg bg-white p-6 shadow-lg"
+      >
         <h3 class="text-lg font-semibold">Receive purchase order</h3>
         <p class="text-sm text-gray-500">
-          Receive items of <span class="font-mono">{{ receiveTarget?.number }}</span> into a warehouse. This increases stock.
+          Receive items of <span class="font-mono">{{ receiveTarget?.number }}</span> into a
+          warehouse. This increases stock.
         </p>
 
         <div>
           <label class="mb-1 block text-sm font-medium">Warehouse</label>
-          <select v-model="receiveForm.warehouse_id" class="w-full rounded border border-gray-300 bg-white px-3 py-2">
+          <select
+            v-model="receiveForm.warehouse_id"
+            class="w-full rounded border border-gray-300 bg-white px-3 py-2"
+          >
             <option value="">Select warehouse</option>
             <option v-for="w in warehouses" :key="w.id" :value="w.id">{{ w.name }}</option>
           </select>
@@ -469,7 +560,9 @@ onMounted(() => {
         <div>
           <div class="mb-2 flex items-center justify-between">
             <label class="text-sm font-medium">Items to receive</label>
-            <button type="button" @click="receiveAll" class="rounded border px-3 py-1 text-xs">Receive all</button>
+            <button type="button" @click="receiveAll" class="rounded border px-3 py-1 text-xs">
+              Receive all
+            </button>
           </div>
 
           <div class="space-y-2">
@@ -481,7 +574,8 @@ onMounted(() => {
               <div class="flex-1">
                 <div class="font-medium">{{ line.product_name }}</div>
                 <div class="text-xs text-gray-500">
-                  Ordered {{ line.ordered }} · received {{ line.received }} · {{ line.remaining }} left
+                  Ordered {{ line.ordered }} · received {{ line.received }} ·
+                  {{ line.remaining }} left
                 </div>
               </div>
               <input
@@ -497,17 +591,33 @@ onMounted(() => {
         </div>
 
         <label class="flex items-center gap-2 text-sm text-gray-700">
-          <input v-model="receiveForm.update_cost" type="checkbox" class="h-4 w-4 rounded border-gray-300" />
+          <input
+            v-model="receiveForm.update_cost"
+            type="checkbox"
+            class="h-4 w-4 rounded border-gray-300"
+          />
           Update each product's cost price to the ordered unit cost
         </label>
 
-        <ul v-if="receiveErrorList.length" class="space-y-1 rounded bg-red-50 px-3 py-2 text-sm text-red-700">
+        <ul
+          v-if="receiveErrorList.length"
+          class="space-y-1 rounded bg-red-50 px-3 py-2 text-sm text-red-700"
+        >
           <li v-for="(msg, index) in receiveErrorList" :key="index">{{ msg }}</li>
         </ul>
 
         <div class="flex justify-end gap-2">
-          <button type="button" @click="showReceive = false" class="rounded border px-4 py-2 text-sm">Cancel</button>
-          <button :disabled="savingReceive" class="rounded bg-green-600 px-4 py-2 text-sm text-white disabled:opacity-50">
+          <button
+            type="button"
+            @click="showReceive = false"
+            class="rounded border px-4 py-2 text-sm"
+          >
+            Cancel
+          </button>
+          <button
+            :disabled="savingReceive"
+            class="rounded bg-green-600 px-4 py-2 text-sm text-white disabled:opacity-50"
+          >
             {{ savingReceive ? 'Receiving...' : 'Receive' }}
           </button>
         </div>

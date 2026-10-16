@@ -87,7 +87,9 @@ watch(
             <p class="font-mono text-xs text-gray-500">{{ stripSku(product?.sku) }}</p>
           </div>
         </div>
-        <button type="button" class="text-gray-400 hover:text-gray-700" @click="emit('close')">✕</button>
+        <button type="button" class="text-gray-400 hover:text-gray-700" @click="emit('close')">
+          ✕
+        </button>
       </div>
 
       <p v-if="error" class="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{{ error }}</p>
@@ -125,7 +127,9 @@ watch(
               </thead>
               <tbody>
                 <tr v-if="!detail.stocks?.length">
-                  <td colspan="2" class="px-3 py-4 text-center text-gray-500">No stock recorded.</td>
+                  <td colspan="2" class="px-3 py-4 text-center text-gray-500">
+                    No stock recorded.
+                  </td>
                 </tr>
                 <tr v-for="s in detail.stocks" :key="s.id" class="border-b last:border-0">
                   <td class="px-3 py-2">{{ s.warehouse?.name ?? '-' }}</td>
@@ -150,16 +154,28 @@ watch(
               </thead>
               <tbody>
                 <tr v-if="!suppliers.length">
-                  <td colspan="4" class="px-3 py-4 text-center text-gray-500">Not linked to any supplier.</td>
+                  <td colspan="4" class="px-3 py-4 text-center text-gray-500">
+                    Not linked to any supplier.
+                  </td>
                 </tr>
                 <tr v-for="s in suppliers" :key="s.id" class="border-b last:border-0">
                   <td class="px-3 py-2">
                     {{ s.name }}
-                    <span v-if="s.is_preferred" class="ml-1 rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">Preferred</span>
+                    <span
+                      v-if="s.is_preferred"
+                      class="ml-1 rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700"
+                      >Preferred</span
+                    >
                   </td>
-                  <td class="px-3 py-2 font-mono text-xs text-gray-600">{{ s.supplier_sku ?? '-' }}</td>
-                  <td class="px-3 py-2 text-right">{{ s.unit_cost == null ? '-' : money(s.unit_cost) }}</td>
-                  <td class="px-3 py-2 text-right">{{ s.lead_time_days == null ? '-' : `${s.lead_time_days} days` }}</td>
+                  <td class="px-3 py-2 font-mono text-xs text-gray-600">
+                    {{ s.supplier_sku ?? '-' }}
+                  </td>
+                  <td class="px-3 py-2 text-right">
+                    {{ s.unit_cost == null ? '-' : money(s.unit_cost) }}
+                  </td>
+                  <td class="px-3 py-2 text-right">
+                    {{ s.lead_time_days == null ? '-' : `${s.lead_time_days} days` }}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -184,8 +200,12 @@ watch(
                   <td colspan="5" class="px-3 py-4 text-center text-gray-500">No movements yet.</td>
                 </tr>
                 <tr v-for="m in movements" :key="m.id" class="border-b last:border-0">
-                  <td class="px-3 py-2 text-gray-600">{{ m.created_at ? m.created_at.substring(0, 10) : '-' }}</td>
-                  <td class="px-3 py-2 capitalize" :class="movementStyles[m.type]">{{ m.type.replace('_', ' ') }}</td>
+                  <td class="px-3 py-2 text-gray-600">
+                    {{ m.created_at ? m.created_at.substring(0, 10) : '-' }}
+                  </td>
+                  <td class="px-3 py-2 capitalize" :class="movementStyles[m.type]">
+                    {{ m.type.replace('_', ' ') }}
+                  </td>
                   <td class="px-3 py-2 text-gray-600">{{ m.warehouse_name ?? '-' }}</td>
                   <td class="px-3 py-2 text-right" :class="movementStyles[m.type]">
                     {{ m.quantity > 0 ? '+' : '' }}{{ m.quantity }}

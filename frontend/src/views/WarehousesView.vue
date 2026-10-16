@@ -133,7 +133,11 @@ onMounted(load)
   <div>
     <div class="mb-4 flex items-center justify-between">
       <h2 class="text-xl font-semibold">Warehouses</h2>
-      <button v-if="auth.canManage" @click="openCreate" class="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">
+      <button
+        v-if="auth.canManage"
+        @click="openCreate"
+        class="rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+      >
         New warehouse
       </button>
     </div>
@@ -145,7 +149,9 @@ onMounted(load)
       class="mb-4 w-full max-w-xs rounded border border-gray-300 bg-white px-3 py-2 text-sm"
     />
 
-    <p v-if="pageError" class="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{{ pageError }}</p>
+    <p v-if="pageError" class="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">
+      {{ pageError }}
+    </p>
 
     <div class="overflow-x-auto rounded-lg bg-white shadow">
       <table class="w-full text-left text-sm">
@@ -180,7 +186,9 @@ onMounted(load)
                 <button @click="toggleActive(w)" class="mr-3 text-gray-600 hover:underline">
                   {{ w.is_active ? 'Deactivate' : 'Activate' }}
                 </button>
-                <button @click="openEdit(w)" class="mr-3 text-blue-600 hover:underline">Edit</button>
+                <button @click="openEdit(w)" class="mr-3 text-blue-600 hover:underline">
+                  Edit
+                </button>
                 <button @click="remove(w)" class="text-red-600 hover:underline">Delete</button>
               </template>
               <span v-else class="text-gray-400">-</span>
@@ -191,26 +199,54 @@ onMounted(load)
     </div>
 
     <div v-if="meta && meta.last_page > 1" class="mt-4 flex items-center justify-between text-sm">
-      <span class="text-gray-600">Page {{ meta.current_page }} of {{ meta.last_page }} ({{ meta.total }} total)</span>
+      <span class="text-gray-600"
+        >Page {{ meta.current_page }} of {{ meta.last_page }} ({{ meta.total }} total)</span
+      >
       <div class="flex gap-2">
-        <button :disabled="meta.current_page <= 1" @click="go(meta.current_page - 1)" class="rounded border bg-white px-3 py-1 disabled:opacity-50">Previous</button>
-        <button :disabled="meta.current_page >= meta.last_page" @click="go(meta.current_page + 1)" class="rounded border bg-white px-3 py-1 disabled:opacity-50">Next</button>
+        <button
+          :disabled="meta.current_page <= 1"
+          @click="go(meta.current_page - 1)"
+          class="rounded border bg-white px-3 py-1 disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <button
+          :disabled="meta.current_page >= meta.last_page"
+          @click="go(meta.current_page + 1)"
+          class="rounded border bg-white px-3 py-1 disabled:opacity-50"
+        >
+          Next
+        </button>
       </div>
     </div>
 
-    <div v-if="showForm" class="fixed inset-0 z-10 flex items-center justify-center bg-black/40 p-4">
-      <form @submit.prevent="save" class="w-full max-w-md space-y-4 rounded-lg bg-white p-6 shadow-lg">
+    <div
+      v-if="showForm"
+      class="fixed inset-0 z-10 flex items-center justify-center bg-black/40 p-4"
+    >
+      <form
+        @submit.prevent="save"
+        class="w-full max-w-md space-y-4 rounded-lg bg-white p-6 shadow-lg"
+      >
         <h3 class="text-lg font-semibold">{{ editingId ? 'Edit warehouse' : 'New warehouse' }}</h3>
 
         <div>
           <label class="mb-1 block text-sm font-medium">Name</label>
-          <input v-model="form.name" type="text" class="w-full rounded border border-gray-300 px-3 py-2" />
+          <input
+            v-model="form.name"
+            type="text"
+            class="w-full rounded border border-gray-300 px-3 py-2"
+          />
           <p v-if="errors.name" class="mt-1 text-sm text-red-600">{{ errors.name[0] }}</p>
         </div>
 
         <div>
           <label class="mb-1 block text-sm font-medium">Address</label>
-          <textarea v-model="form.address" rows="2" class="w-full rounded border border-gray-300 px-3 py-2"></textarea>
+          <textarea
+            v-model="form.address"
+            rows="2"
+            class="w-full rounded border border-gray-300 px-3 py-2"
+          ></textarea>
           <p v-if="errors.address" class="mt-1 text-sm text-red-600">{{ errors.address[0] }}</p>
         </div>
 
@@ -220,8 +256,13 @@ onMounted(load)
         </label>
 
         <div class="flex justify-end gap-2">
-          <button type="button" @click="showForm = false" class="rounded border px-4 py-2 text-sm">Cancel</button>
-          <button :disabled="saving" class="rounded bg-blue-600 px-4 py-2 text-sm text-white disabled:opacity-50">
+          <button type="button" @click="showForm = false" class="rounded border px-4 py-2 text-sm">
+            Cancel
+          </button>
+          <button
+            :disabled="saving"
+            class="rounded bg-blue-600 px-4 py-2 text-sm text-white disabled:opacity-50"
+          >
             {{ saving ? 'Saving...' : 'Save' }}
           </button>
         </div>

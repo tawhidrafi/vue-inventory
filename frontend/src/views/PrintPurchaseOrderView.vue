@@ -32,7 +32,10 @@ onMounted(async () => {
   <div class="min-h-screen bg-gray-100 p-4 print:bg-white print:p-0">
     <div class="mx-auto max-w-3xl">
       <div class="mb-4 flex items-center justify-between print:hidden">
-        <button class="rounded border bg-white px-4 py-2 text-sm hover:bg-gray-50" @click="router.back()">
+        <button
+          class="rounded border bg-white px-4 py-2 text-sm hover:bg-gray-50"
+          @click="router.back()"
+        >
           ← Back
         </button>
         <button
@@ -46,7 +49,10 @@ onMounted(async () => {
 
       <p v-if="error" class="rounded bg-red-50 px-3 py-2 text-sm text-red-700">{{ error }}</p>
 
-      <div v-else-if="order" class="rounded-lg bg-white p-8 shadow print:rounded-none print:p-0 print:shadow-none">
+      <div
+        v-else-if="order"
+        class="rounded-lg bg-white p-8 shadow print:rounded-none print:p-0 print:shadow-none"
+      >
         <div class="mb-6 flex items-start justify-between">
           <div>
             <h1 class="text-2xl font-bold">Purchase Order</h1>
@@ -54,17 +60,27 @@ onMounted(async () => {
           </div>
           <div class="text-right text-sm">
             <p class="font-medium capitalize">{{ order.status.replace('_', ' ') }}</p>
-            <p class="text-gray-500">Issued {{ order.created_at ? order.created_at.substring(0, 10) : '-' }}</p>
-            <p v-if="order.expected_at" class="text-gray-500">Expected {{ order.expected_at.substring(0, 10) }}</p>
-            <p v-if="order.received_at" class="text-gray-500">Received {{ order.received_at.substring(0, 10) }}</p>
+            <p class="text-gray-500">
+              Issued {{ order.created_at ? order.created_at.substring(0, 10) : '-' }}
+            </p>
+            <p v-if="order.expected_at" class="text-gray-500">
+              Expected {{ order.expected_at.substring(0, 10) }}
+            </p>
+            <p v-if="order.received_at" class="text-gray-500">
+              Received {{ order.received_at.substring(0, 10) }}
+            </p>
           </div>
         </div>
 
         <div class="mb-6">
           <p class="text-xs uppercase tracking-wide text-gray-400">Supplier</p>
           <p class="font-medium">{{ order.supplier?.name ?? '-' }}</p>
-          <p v-if="order.supplier?.email" class="text-sm text-gray-600">{{ order.supplier.email }}</p>
-          <p v-if="order.supplier?.phone" class="text-sm text-gray-600">{{ order.supplier.phone }}</p>
+          <p v-if="order.supplier?.email" class="text-sm text-gray-600">
+            {{ order.supplier.email }}
+          </p>
+          <p v-if="order.supplier?.phone" class="text-sm text-gray-600">
+            {{ order.supplier.phone }}
+          </p>
         </div>
 
         <table class="mb-4 w-full text-left text-sm">

@@ -61,7 +61,11 @@ onMounted(async () => {
               <tr v-if="!report.by_warehouse.length">
                 <td colspan="4" class="px-4 py-6 text-center text-gray-500">No stock.</td>
               </tr>
-              <tr v-for="row in report.by_warehouse" :key="row.warehouse_id" class="border-b last:border-0">
+              <tr
+                v-for="row in report.by_warehouse"
+                :key="row.warehouse_id"
+                class="border-b last:border-0"
+              >
                 <td class="px-4 py-2">{{ row.warehouse_name ?? '-' }}</td>
                 <td class="px-4 py-2 text-right">{{ row.units }}</td>
                 <td class="px-4 py-2 text-right">{{ money(row.cost_value) }}</td>
@@ -86,7 +90,11 @@ onMounted(async () => {
               <tr v-if="!report.by_category.length">
                 <td colspan="4" class="px-4 py-6 text-center text-gray-500">No stock.</td>
               </tr>
-              <tr v-for="row in report.by_category" :key="row.category_id ?? 'none'" class="border-b last:border-0">
+              <tr
+                v-for="row in report.by_category"
+                :key="row.category_id ?? 'none'"
+                class="border-b last:border-0"
+              >
                 <td class="px-4 py-2">{{ row.category_name }}</td>
                 <td class="px-4 py-2 text-right">{{ row.units }}</td>
                 <td class="px-4 py-2 text-right">{{ money(row.cost_value) }}</td>

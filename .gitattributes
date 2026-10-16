@@ -1,0 +1,18 @@
+# Normalise all text files to LF on checkout/commit.
+* text=auto eol=lf
+
+# Files that must never be treated as text.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+
+# Let git keep lockfiles untouched.
+package-lock.json -diff linguist-generated
+composer.lock -diff linguist-generated
