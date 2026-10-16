@@ -21,6 +21,7 @@ function toFormData(data) {
 export const productsApi = {
   list: (params) => http.get('/products', { params }),
   all: () => http.get('/products', { params: { all: 1 } }),
+  lookup: (code) => http.get('/products/lookup', { params: { code } }),
   create: (data) => http.post('/products', toFormData(data)),
   update: (id, data) => {
     const fd = toFormData(data)

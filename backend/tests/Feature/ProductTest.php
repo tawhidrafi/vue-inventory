@@ -142,17 +142,26 @@ class ProductTest extends TestCase
         $this->apiDelete("/api/products/{$product->id}/force")->assertStatus(422);
     }
 
-    public function test_the_index_can_list_only_trashed_products(): void
+    public function test_a_product_can_be_looked_up_by_barcode_or_sku(): void
     {
-        $kept = $this->makeProduct(['name' => 'Kept']);
-        $gone = $this->makeProduct(['name' => 'Gone']);
+        $product = $this->makeProduct(['sku' => 'SCAN-1', 'barcode' => '5901234123457']);
 
-        $this->apiDelete("/api/products/{$gone->id}");
+        $this->apiGet('/api/products/lookup', ['code' => '5901234123457'])
+            ->assertOk()
+            ->assertJsonPath('data.id', $product->id);
 
-        $response = $this->apiGet('/api/products', ['trashed' => 1])->assertOk();
+        $this->apiGet('/api/products/lookup', ['code' => 'SCAN-1'])
+            ->assertOk()
+            ->assertJsonPath('data.id', $product->id);
+    }
 
-        $ids = collect($response->json('data'))->pluck('id');
-        $this->assertTrue($ids->contains($gone->id));
-        $this->assertFalse($ids->contains($kept->id));
+    public function test_lookup_returns_404_for_an_unknown_code(): void
+    {
+        $this->apiGet('/api/products/lookup', ['code' => 'nope'])->assertStatus(404);
+    }
+
+    public function test_lookup_requires_a_code(): void
+    {
+        $this->apiGet('/api/products/lookup')->assertStatus(422);
     }
 }

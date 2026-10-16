@@ -2,9 +2,11 @@
 import { ref, reactive, watch, onMounted } from 'vue'
 import { stocksApi } from '@/api/stocks'
 import { stockMovementsApi } from '@/api/stockMovements'
+import { productsApi } from '@/api/products'
 import { warehousesApi } from '@/api/warehouses'
 import { useToastStore } from '@/stores/toasts'
 import { downloadResponse } from '@/utils/download'
+import BarcodeScanInput from '@/components/BarcodeScanInput.vue'
 
 const toast = useToastStore()
 
@@ -103,7 +105,7 @@ function go(p) {
 }
 
 function openAdjust(row) {
-  adjustTarget.value = `${row.product?.name} — ${row.warehouse?.name}`
+  adjustTarget.value = `${row.product?.name} — ${row.product?.sku}`
   Object.assign(adjustForm, {
     product_id: row.product_id,
     warehouse_id: row.warehouse_id,
@@ -207,6 +209,35 @@ async function exportMovements() {
   }
 }
 
+// a barcode scanner types the code and hits Enter — open the adjust modal for it
+async function handleScan(code) {
+  try {
+    const { data } = await productsApi.lookup(code)
+    const product = data.data
+
+    const preferred =
+      warehouses.value.find((w) => String(w.id) === String(warehouseFilter.value)) ??
+      warehouses.value[0]
+
+    adjustTarget.value = `${product.name} — ${product.sku}`
+    Object.assign(adjustForm, {
+      product_id: product.id,
+      warehouse_id: preferred ? preferred.id : '',
+      type: 'in',
+      quantity: '',
+      note: '',
+    })
+    adjustErrors.value = {}
+    showAdjust.value = true
+  } catch (e) {
+    if (e.response?.status === 404) {
+      toast.error(`No product matches "${code}".`)
+    } else {
+      toast.error('Barcode lookup failed.')
+    }
+  }
+}
+
 onMounted(() => {
   load()
   loadWarehouses()
@@ -226,6 +257,7 @@ onMounted(() => {
     </div>
 
     <div class="mb-4 flex flex-wrap items-center gap-3">
+      <BarcodeScanInput class="w-full max-w-xs" @scan="handleScan" />
       <input
         v-model="search"
         type="text"
@@ -319,6 +351,20 @@ onMounted(() => {
       >
         <h3 class="text-lg font-semibold">Adjust stock</h3>
         <p class="text-sm text-gray-500">{{ adjustTarget }}</p>
+
+        <div>
+          <label class="mb-1 block text-sm font-medium">Warehouse</label>
+          <select
+            v-model="adjustForm.warehouse_id"
+            class="w-full rounded border border-gray-300 bg-white px-3 py-2"
+          >
+            <option value="">Select warehouse</option>
+            <option v-for="w in warehouses" :key="w.id" :value="w.id">{{ w.name }}</option>
+          </select>
+          <p v-if="adjustErrors.warehouse_id" class="mt-1 text-sm text-red-600">
+            {{ adjustErrors.warehouse_id[0] }}
+          </p>
+        </div>
 
         <div>
           <label class="mb-1 block text-sm font-medium">Type</label>

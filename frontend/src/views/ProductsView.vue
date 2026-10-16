@@ -7,6 +7,7 @@ import { suppliersApi } from '@/api/suppliers'
 import { useToastStore } from '@/stores/toasts'
 import { useAuthStore } from '@/stores/auth'
 import ProductDetailModal from '@/components/ProductDetailModal.vue'
+import BarcodeScanInput from '@/components/BarcodeScanInput.vue'
 import { downloadResponse } from '@/utils/download'
 
 const toast = useToastStore()
@@ -338,6 +339,20 @@ async function exportProducts() {
   }
 }
 
+// a barcode scanner types the code and hits Enter — open that product's detail
+async function handleScan(code) {
+  try {
+    const { data } = await productsApi.lookup(code)
+    detailProduct.value = data.data
+  } catch (e) {
+    if (e.response?.status === 404) {
+      toast.error(`No product matches "${code}".`)
+    } else {
+      toast.error('Barcode lookup failed.')
+    }
+  }
+}
+
 onMounted(() => {
   load()
   loadCategories()
@@ -367,6 +382,7 @@ onMounted(() => {
     </div>
 
     <div class="mb-4 flex flex-wrap items-center gap-3">
+      <BarcodeScanInput class="w-full max-w-xs" @scan="handleScan" />
       <input
         v-model="search"
         type="text"

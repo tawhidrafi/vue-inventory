@@ -28,6 +28,7 @@ Route::middleware('auth.token')->group(function () {
     Route::get('categories', [CategoryController::class, 'index']);
     Route::get('categories/{category}', [CategoryController::class, 'show']);
     Route::get('products', [ProductController::class, 'index']);
+    Route::get('products/lookup', [ProductController::class, 'lookup']);
     Route::get('products/{product}', [ProductController::class, 'show']);
     Route::get('suppliers', [SupplierController::class, 'index']);
     Route::get('suppliers/{supplier}', [SupplierController::class, 'show']);

@@ -69,6 +69,31 @@ class ProductController extends Controller
         return new ProductResource($product->load('category'));
     }
 
+    /**
+     * Resolve a single product from a scanned barcode or SKU.
+     */
+    public function lookup(Request $request)
+    {
+        $code = trim((string) $request->query('code'));
+
+        if ($code === '') {
+            return response()->json(['message' => 'A barcode or SKU is required.'], 422);
+        }
+
+        $product = Product::query()
+            ->with('category')
+            ->withCount('suppliers')
+            ->withSum('stocks as stock_total', 'quantity')
+            ->where(fn ($q) => $q->where('barcode', $code)->orWhere('sku', $code))
+            ->first();
+
+        if (! $product) {
+            return response()->json(['message' => "No product matches \"{$code}\"."], 404);
+        }
+
+        return new ProductResource($product);
+    }
+
     public function show(Product $product)
     {
         return new ProductResource($product->load('category'));
