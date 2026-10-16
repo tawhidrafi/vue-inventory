@@ -13,7 +13,10 @@ async function logout() {
 const links = [
   { to: '/', label: 'Dashboard' },
   { to: '/categories', label: 'Categories' },
+  { to: '/products', label: 'Products' },
+  { to: '/stock', label: 'Stock' },
   { to: '/suppliers', label: 'Suppliers' },
+  { to: '/warehouses', label: 'Warehouses' },
 ]
 </script>
 
