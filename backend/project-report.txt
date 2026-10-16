@@ -1,0 +1,50 @@
+##14-10-2026
+1. Laravel setup (no additional packages were installed)
+
+2. API ROUTE Integration
+routes/api.php -> bootstrap/app.php -> Check api route
+
+3. return JSON for API errors
+bootstrap/app.php
+
+4. Tokens table and model
+Model Created, edited with relationship
+Schema added
+User model updated with relationship
+db migrated
+
+5. Auth middleware (checks the token on each request)
+AuthenticateApiToken Middleware created, edited
+registered a short name for it in bootstrap/app.php
+
+6. Auth controller
+created, edited
+
+7: Routes
+routes/api.php updated with new routes
+
+8: Create a test use
+database/seeders/DatabaseSeeder.php edited
+db seeded
+
+9. Tested via powershell
+
+/* ---------------------------------------------------------------------------*/
+1. vue project  created
+2. Tailwind setup complete
+3. env for frontend. frontend/.env
+4. Axios instance src/api/http.js
+5. Auth store (Pinia) src/stores/auth.js
+6. Router with a guard src/router/index.js
+7. updated App.vue
+8. src/views/LoginView.vue created
+9. src/views/DashboardView.vue created
+10. Tested 
+
+/* ---------------------------------------------------------------------------*/
+
+1. Categories, Suppliers, warehouse, products (Models and schema are created)
+2. Tested
+
+/* ---------------------------------------------------------------------------*/
+1. Categories,s

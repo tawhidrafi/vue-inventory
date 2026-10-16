@@ -1,0 +1,61 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\CategoryRequest;
+use App\Http\Resources\CategoryResource;
+use App\Models\Category;
+use Illuminate\Http\Request;
+
+class CategoryController extends Controller
+{
+    public function index(Request $request)
+    {
+        $query = Category::query()
+            ->with('parent')
+            ->withCount('products')
+            ->when($request->search, fn ($q, $s) => $q->where('name', 'like', "%{$s}%"))
+            ->orderBy('name');
+
+        // ?all=1 returns everything (used for dropdowns)
+        if ($request->boolean('all')) {
+            return CategoryResource::collection($query->get());
+        }
+
+        return CategoryResource::collection(
+            $query->paginate($request->integer('per_page', 10))
+        );
+    }
+
+    public function store(CategoryRequest $request)
+    {
+        $category = Category::create($request->validated());
+
+        return new CategoryResource($category->load('parent'));
+    }
+
+    public function show(Category $category)
+    {
+        return new CategoryResource($category->load('parent')->loadCount('products'));
+    }
+
+    public function update(CategoryRequest $request, Category $category)
+    {
+        $category->update($request->validated());
+
+        return new CategoryResource($category->load('parent'));
+    }
+
+    public function destroy(Category $category)
+    {
+        if ($category->products()->exists() || $category->children()->exists()) {
+            return response()->json([
+                'message' => 'Cannot delete a category that has products or subcategories.',
+            ], 422);
+        }
+
+        $category->delete();
+
+        return response()->noContent();
+    }
+}
