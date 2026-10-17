@@ -261,11 +261,13 @@ onMounted(() => {
       <input
         v-model="search"
         type="text"
+        aria-label="Search stock by product name or SKU"
         placeholder="Search by product name or SKU..."
         class="w-full max-w-xs rounded border border-gray-300 bg-white px-3 py-2 text-sm"
       />
       <select
         v-model="warehouseFilter"
+        aria-label="Filter by warehouse"
         class="rounded border border-gray-300 bg-white px-3 py-2 text-sm"
       >
         <option value="">All warehouses</option>
@@ -285,11 +287,11 @@ onMounted(() => {
       <table class="w-full text-left text-sm">
         <thead class="border-b bg-gray-50 text-gray-600">
           <tr>
-            <th class="px-4 py-3">Product</th>
-            <th class="px-4 py-3">SKU</th>
-            <th class="px-4 py-3">Warehouse</th>
-            <th class="px-4 py-3">Quantity</th>
-            <th class="px-4 py-3 text-right">Actions</th>
+            <th scope="col" class="px-4 py-3">Product</th>
+            <th scope="col" class="px-4 py-3">SKU</th>
+            <th scope="col" class="px-4 py-3">Warehouse</th>
+            <th scope="col" class="px-4 py-3">Quantity</th>
+            <th scope="col" class="px-4 py-3 text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -343,6 +345,9 @@ onMounted(() => {
     <!-- adjust modal -->
     <div
       v-if="showAdjust"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Adjust stock"
       class="fixed inset-0 z-10 flex items-center justify-center bg-black/40 p-4"
     >
       <form
@@ -434,6 +439,9 @@ onMounted(() => {
     <!-- transfer modal -->
     <div
       v-if="showTransfer"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Transfer stock"
       class="fixed inset-0 z-10 flex items-center justify-center bg-black/40 p-4"
     >
       <form
@@ -511,6 +519,9 @@ onMounted(() => {
     <!-- history panel -->
     <div
       v-if="showHistory"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Stock movement history"
       class="fixed inset-0 z-10 flex items-center justify-center bg-black/40 p-4"
     >
       <div class="flex max-h-[80vh] w-full max-w-2xl flex-col rounded-lg bg-white p-6 shadow-lg">
@@ -528,12 +539,12 @@ onMounted(() => {
           <table class="w-full text-left text-sm">
             <thead class="border-b bg-gray-50 text-gray-600">
               <tr>
-                <th class="px-3 py-2">Date</th>
-                <th class="px-3 py-2">Type</th>
-                <th class="px-3 py-2">Change</th>
-                <th class="px-3 py-2">Balance</th>
-                <th class="px-3 py-2">By</th>
-                <th class="px-3 py-2">Note</th>
+                <th scope="col" class="px-3 py-2">Date</th>
+                <th scope="col" class="px-3 py-2">Type</th>
+                <th scope="col" class="px-3 py-2">Change</th>
+                <th scope="col" class="px-3 py-2">Balance</th>
+                <th scope="col" class="px-3 py-2">By</th>
+                <th scope="col" class="px-3 py-2">Note</th>
               </tr>
             </thead>
             <tbody>

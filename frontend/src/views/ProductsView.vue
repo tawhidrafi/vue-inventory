@@ -386,11 +386,13 @@ onMounted(() => {
       <input
         v-model="search"
         type="text"
+        aria-label="Search products by name, SKU or barcode"
         placeholder="Search by name, SKU or barcode..."
         class="w-full max-w-xs rounded border border-gray-300 bg-white px-3 py-2 text-sm"
       />
       <select
         v-model="categoryFilter"
+        aria-label="Filter by category"
         class="rounded border border-gray-300 bg-white px-3 py-2 text-sm"
       >
         <option value="">All categories</option>
@@ -398,6 +400,7 @@ onMounted(() => {
       </select>
       <select
         v-model="activeFilter"
+        aria-label="Filter by status"
         class="rounded border border-gray-300 bg-white px-3 py-2 text-sm"
       >
         <option value="">All statuses</option>
@@ -418,15 +421,15 @@ onMounted(() => {
       <table class="w-full text-left text-sm">
         <thead class="border-b bg-gray-50 text-gray-600">
           <tr>
-            <th class="px-4 py-3">Image</th>
-            <th class="px-4 py-3">SKU</th>
-            <th class="px-4 py-3">Name</th>
-            <th class="px-4 py-3">Category</th>
-            <th class="px-4 py-3">Cost</th>
-            <th class="px-4 py-3">Sell</th>
-            <th class="px-4 py-3">Stock</th>
-            <th class="px-4 py-3">Status</th>
-            <th class="px-4 py-3 text-right">Actions</th>
+            <th scope="col" class="px-4 py-3">Image</th>
+            <th scope="col" class="px-4 py-3">SKU</th>
+            <th scope="col" class="px-4 py-3">Name</th>
+            <th scope="col" class="px-4 py-3">Category</th>
+            <th scope="col" class="px-4 py-3">Cost</th>
+            <th scope="col" class="px-4 py-3">Sell</th>
+            <th scope="col" class="px-4 py-3">Stock</th>
+            <th scope="col" class="px-4 py-3">Status</th>
+            <th scope="col" class="px-4 py-3 text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -530,6 +533,9 @@ onMounted(() => {
 
     <div
       v-if="showForm"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Product form"
       class="fixed inset-0 z-10 flex items-center justify-center overflow-y-auto bg-black/40 p-4"
     >
       <form
@@ -688,6 +694,9 @@ onMounted(() => {
     <!-- supplier links modal -->
     <div
       v-if="showSuppliers"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Product suppliers"
       class="fixed inset-0 z-10 flex items-center justify-center bg-black/40 p-4"
     >
       <div class="flex max-h-[85vh] w-full max-w-2xl flex-col rounded-lg bg-white p-6 shadow-lg">
@@ -705,13 +714,13 @@ onMounted(() => {
           <table class="w-full text-left text-sm">
             <thead class="border-b bg-gray-50 text-gray-600">
               <tr>
-                <th class="px-3 py-2">Supplier</th>
-                <th class="px-3 py-2">Supplier SKU</th>
-                <th class="px-3 py-2">Cost</th>
-                <th class="px-3 py-2">Lead</th>
-                <th class="px-3 py-2">MOQ</th>
-                <th class="px-3 py-2">Preferred</th>
-                <th class="px-3 py-2 text-right">Actions</th>
+                <th scope="col" class="px-3 py-2">Supplier</th>
+                <th scope="col" class="px-3 py-2">Supplier SKU</th>
+                <th scope="col" class="px-3 py-2">Cost</th>
+                <th scope="col" class="px-3 py-2">Lead</th>
+                <th scope="col" class="px-3 py-2">MOQ</th>
+                <th scope="col" class="px-3 py-2">Preferred</th>
+                <th scope="col" class="px-3 py-2 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>

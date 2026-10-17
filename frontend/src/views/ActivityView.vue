@@ -75,11 +75,13 @@ onMounted(load)
       <input
         v-model="search"
         type="text"
+        aria-label="Search the activity description"
         placeholder="Search the description..."
         class="w-full max-w-xs rounded border border-gray-300 bg-white px-3 py-2 text-sm"
       />
       <select
         v-model="actionFilter"
+        aria-label="Filter by action"
         class="rounded border border-gray-300 bg-white px-3 py-2 text-sm"
       >
         <option value="">All actions</option>
@@ -99,11 +101,11 @@ onMounted(load)
       <table class="w-full text-left text-sm">
         <thead class="border-b bg-gray-50 text-gray-600">
           <tr>
-            <th class="px-4 py-3">When</th>
-            <th class="px-4 py-3">User</th>
-            <th class="px-4 py-3">Action</th>
-            <th class="px-4 py-3">Description</th>
-            <th class="px-4 py-3">IP</th>
+            <th scope="col" class="px-4 py-3">When</th>
+            <th scope="col" class="px-4 py-3">User</th>
+            <th scope="col" class="px-4 py-3">Action</th>
+            <th scope="col" class="px-4 py-3">Description</th>
+            <th scope="col" class="px-4 py-3">IP</th>
           </tr>
         </thead>
         <tbody>

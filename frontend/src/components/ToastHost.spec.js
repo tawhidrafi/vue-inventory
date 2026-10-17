@@ -30,4 +30,16 @@ describe('ToastHost', () => {
 
     expect(wrapper.text()).not.toContain('Saved successfully')
   })
+
+  it('is a polite live region and marks errors as alerts', async () => {
+    const wrapper = mount(ToastHost, { global: { plugins: [pinia] } })
+
+    expect(wrapper.attributes('aria-live')).toBe('polite')
+
+    useToastStore().error('Boom')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.get('[role="alert"]').text()).toContain('Boom')
+    expect(wrapper.get('button').attributes('aria-label')).toBe('Dismiss notification')
+  })
 })

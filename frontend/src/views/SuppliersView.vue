@@ -129,6 +129,7 @@ onMounted(load)
     <input
       v-model="search"
       type="text"
+      aria-label="Search suppliers by name, email or phone"
       placeholder="Search by name, email or phone..."
       class="mb-4 w-full max-w-xs rounded border border-gray-300 bg-white px-3 py-2 text-sm"
     />
@@ -141,10 +142,10 @@ onMounted(load)
       <table class="w-full text-left text-sm">
         <thead class="border-b bg-gray-50 text-gray-600">
           <tr>
-            <th class="px-4 py-3">Name</th>
-            <th class="px-4 py-3">Email</th>
-            <th class="px-4 py-3">Phone</th>
-            <th class="px-4 py-3 text-right">Actions</th>
+            <th scope="col" class="px-4 py-3">Name</th>
+            <th scope="col" class="px-4 py-3">Email</th>
+            <th scope="col" class="px-4 py-3">Phone</th>
+            <th scope="col" class="px-4 py-3 text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -196,6 +197,9 @@ onMounted(load)
 
     <div
       v-if="showForm"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Supplier form"
       class="fixed inset-0 z-10 flex items-center justify-center bg-black/40 p-4"
     >
       <form

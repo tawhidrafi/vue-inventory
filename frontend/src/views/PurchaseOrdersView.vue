@@ -302,11 +302,13 @@ onMounted(() => {
       <input
         v-model="search"
         type="text"
+        aria-label="Search purchase orders by number"
         placeholder="Search by PO number..."
         class="w-full max-w-xs rounded border border-gray-300 bg-white px-3 py-2 text-sm"
       />
       <select
         v-model="supplierFilter"
+        aria-label="Filter by supplier"
         class="rounded border border-gray-300 bg-white px-3 py-2 text-sm"
       >
         <option value="">All suppliers</option>
@@ -314,6 +316,7 @@ onMounted(() => {
       </select>
       <select
         v-model="statusFilter"
+        aria-label="Filter by status"
         class="rounded border border-gray-300 bg-white px-3 py-2 text-sm"
       >
         <option value="">All statuses</option>
@@ -332,13 +335,13 @@ onMounted(() => {
       <table class="w-full text-left text-sm">
         <thead class="border-b bg-gray-50 text-gray-600">
           <tr>
-            <th class="px-4 py-3">Number</th>
-            <th class="px-4 py-3">Supplier</th>
-            <th class="px-4 py-3">Status</th>
-            <th class="px-4 py-3">Items</th>
-            <th class="px-4 py-3">Total</th>
-            <th class="px-4 py-3">Expected</th>
-            <th class="px-4 py-3 text-right">Actions</th>
+            <th scope="col" class="px-4 py-3">Number</th>
+            <th scope="col" class="px-4 py-3">Supplier</th>
+            <th scope="col" class="px-4 py-3">Status</th>
+            <th scope="col" class="px-4 py-3">Items</th>
+            <th scope="col" class="px-4 py-3">Total</th>
+            <th scope="col" class="px-4 py-3">Expected</th>
+            <th scope="col" class="px-4 py-3 text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -427,6 +430,9 @@ onMounted(() => {
     <!-- create / edit modal -->
     <div
       v-if="showForm"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Purchase order form"
       class="fixed inset-0 z-10 flex items-center justify-center overflow-y-auto bg-black/40 p-4"
     >
       <form
@@ -478,6 +484,7 @@ onMounted(() => {
             <div v-for="(line, index) in form.items" :key="index" class="flex items-center gap-2">
               <select
                 v-model="line.product_id"
+                aria-label="Line product"
                 @change="onProductChange(line)"
                 class="flex-1 rounded border border-gray-300 bg-white px-3 py-2 text-sm"
               >
@@ -490,6 +497,7 @@ onMounted(() => {
                 v-model="line.quantity"
                 type="number"
                 min="1"
+                aria-label="Line quantity"
                 placeholder="Qty"
                 class="w-24 rounded border border-gray-300 px-3 py-2 text-sm"
               />
@@ -498,10 +506,16 @@ onMounted(() => {
                 type="number"
                 step="0.01"
                 min="0"
+                aria-label="Line unit cost"
                 placeholder="Unit cost"
                 class="w-28 rounded border border-gray-300 px-3 py-2 text-sm"
               />
-              <button type="button" @click="removeLine(index)" class="text-red-600 hover:underline">
+              <button
+                type="button"
+                aria-label="Remove line"
+                class="text-red-600 hover:underline"
+                @click="removeLine(index)"
+              >
                 ✕
               </button>
             </div>
@@ -534,6 +548,9 @@ onMounted(() => {
     <!-- receive modal -->
     <div
       v-if="showReceive"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Receive purchase order"
       class="fixed inset-0 z-10 flex items-center justify-center bg-black/40 p-4"
     >
       <form

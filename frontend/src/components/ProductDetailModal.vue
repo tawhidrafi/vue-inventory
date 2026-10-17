@@ -70,6 +70,9 @@ watch(
 
 <template>
   <div
+    role="dialog"
+    aria-modal="true"
+    aria-label="Product details"
     class="fixed inset-0 z-10 flex items-start justify-center overflow-y-auto bg-black/40 p-4"
     @click.self="emit('close')"
   >
@@ -121,8 +124,8 @@ watch(
             <table class="w-full text-left text-sm">
               <thead class="border-b bg-gray-50 text-gray-600">
                 <tr>
-                  <th class="px-3 py-2">Warehouse</th>
-                  <th class="px-3 py-2 text-right">Quantity</th>
+                  <th scope="col" class="px-3 py-2">Warehouse</th>
+                  <th scope="col" class="px-3 py-2 text-right">Quantity</th>
                 </tr>
               </thead>
               <tbody>
@@ -146,10 +149,10 @@ watch(
             <table class="w-full text-left text-sm">
               <thead class="border-b bg-gray-50 text-gray-600">
                 <tr>
-                  <th class="px-3 py-2">Supplier</th>
-                  <th class="px-3 py-2">Supplier SKU</th>
-                  <th class="px-3 py-2 text-right">Unit cost</th>
-                  <th class="px-3 py-2 text-right">Lead time</th>
+                  <th scope="col" class="px-3 py-2">Supplier</th>
+                  <th scope="col" class="px-3 py-2">Supplier SKU</th>
+                  <th scope="col" class="px-3 py-2 text-right">Unit cost</th>
+                  <th scope="col" class="px-3 py-2 text-right">Lead time</th>
                 </tr>
               </thead>
               <tbody>
@@ -188,11 +191,11 @@ watch(
             <table class="w-full text-left text-sm">
               <thead class="border-b bg-gray-50 text-gray-600">
                 <tr>
-                  <th class="px-3 py-2">Date</th>
-                  <th class="px-3 py-2">Type</th>
-                  <th class="px-3 py-2">Warehouse</th>
-                  <th class="px-3 py-2 text-right">Change</th>
-                  <th class="px-3 py-2 text-right">Balance</th>
+                  <th scope="col" class="px-3 py-2">Date</th>
+                  <th scope="col" class="px-3 py-2">Type</th>
+                  <th scope="col" class="px-3 py-2">Warehouse</th>
+                  <th scope="col" class="px-3 py-2 text-right">Change</th>
+                  <th scope="col" class="px-3 py-2 text-right">Balance</th>
                 </tr>
               </thead>
               <tbody>

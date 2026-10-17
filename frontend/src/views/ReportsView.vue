@@ -51,10 +51,10 @@ onMounted(async () => {
           <table class="w-full text-left text-sm">
             <thead class="border-b bg-gray-50 text-gray-600">
               <tr>
-                <th class="px-4 py-2">Warehouse</th>
-                <th class="px-4 py-2 text-right">Units</th>
-                <th class="px-4 py-2 text-right">Cost</th>
-                <th class="px-4 py-2 text-right">Retail</th>
+                <th scope="col" class="px-4 py-2">Warehouse</th>
+                <th scope="col" class="px-4 py-2 text-right">Units</th>
+                <th scope="col" class="px-4 py-2 text-right">Cost</th>
+                <th scope="col" class="px-4 py-2 text-right">Retail</th>
               </tr>
             </thead>
             <tbody>
@@ -80,10 +80,10 @@ onMounted(async () => {
           <table class="w-full text-left text-sm">
             <thead class="border-b bg-gray-50 text-gray-600">
               <tr>
-                <th class="px-4 py-2">Category</th>
-                <th class="px-4 py-2 text-right">Units</th>
-                <th class="px-4 py-2 text-right">Cost</th>
-                <th class="px-4 py-2 text-right">Retail</th>
+                <th scope="col" class="px-4 py-2">Category</th>
+                <th scope="col" class="px-4 py-2 text-right">Units</th>
+                <th scope="col" class="px-4 py-2 text-right">Cost</th>
+                <th scope="col" class="px-4 py-2 text-right">Retail</th>
               </tr>
             </thead>
             <tbody>

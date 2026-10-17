@@ -86,12 +86,12 @@ onMounted(async () => {
         <table class="mb-4 w-full text-left text-sm">
           <thead class="border-b-2 border-gray-300 text-gray-600">
             <tr>
-              <th class="py-2">Product</th>
-              <th class="py-2">SKU</th>
-              <th class="py-2 text-right">Ordered</th>
-              <th class="py-2 text-right">Received</th>
-              <th class="py-2 text-right">Unit cost</th>
-              <th class="py-2 text-right">Line total</th>
+              <th scope="col" class="py-2">Product</th>
+              <th scope="col" class="py-2">SKU</th>
+              <th scope="col" class="py-2 text-right">Ordered</th>
+              <th scope="col" class="py-2 text-right">Received</th>
+              <th scope="col" class="py-2 text-right">Unit cost</th>
+              <th scope="col" class="py-2 text-right">Line total</th>
             </tr>
           </thead>
           <tbody>
