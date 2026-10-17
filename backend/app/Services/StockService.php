@@ -13,6 +13,8 @@ use Illuminate\Validation\ValidationException;
 
 class StockService
 {
+    public function __construct(private NotificationService $notifications) {}
+
     /**
      * Apply a signed delta to a product/warehouse level and record the movement.
      *
@@ -34,7 +36,10 @@ class StockService
             ]);
         }
 
-        return DB::transaction(function () use ($product, $warehouse, $type, $delta, $note, $reference, $user) {
+        $before = 0;
+        $after = 0;
+
+        $movement = DB::transaction(function () use ($product, $warehouse, $type, $delta, $note, $reference, $user, &$before, &$after) {
             $stock = Stock::firstOrCreate(
                 ['product_id' => $product->id, 'warehouse_id' => $warehouse->id],
                 ['quantity' => 0],
@@ -42,6 +47,7 @@ class StockService
 
             $stock = Stock::whereKey($stock->id)->lockForUpdate()->first();
 
+            $before = $stock->quantity;
             $newQuantity = $stock->quantity + $delta;
 
             if ($newQuantity < 0) {
@@ -51,6 +57,8 @@ class StockService
             }
 
             $stock->update(['quantity' => $newQuantity]);
+
+            $after = $newQuantity;
 
             return StockMovement::create([
                 'product_id' => $product->id,
@@ -63,6 +71,10 @@ class StockService
                 'note' => $note,
             ]);
         });
+
+        $this->notifyIfLow($product, $warehouse, $before, $after);
+
+        return $movement;
     }
 
     /**
@@ -82,5 +94,17 @@ class StockService
             $this->record($product, $from, 'transfer_out', -$quantity, $note, $reference, $user);
             $this->record($product, $to, 'transfer_in', $quantity, $note, $reference, $user);
         });
+    }
+
+    /**
+     * Alert opted-in users when a movement crosses the reorder level downwards.
+     */
+    private function notifyIfLow(Product $product, Warehouse $warehouse, int $before, int $after): void
+    {
+        $level = (int) $product->reorder_level;
+
+        if ($level > 0 && $before > $level && $after <= $level) {
+            $this->notifications->lowStock($product, $warehouse, $after);
+        }
     }
 }

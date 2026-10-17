@@ -22,6 +22,7 @@ const links = [
   { to: '/warehouses', label: 'Warehouses' },
   { to: '/activity', label: 'Activity', roles: ['admin', 'manager'] },
   { to: '/users', label: 'Users', roles: ['admin'] },
+  { to: '/settings', label: 'Settings' },
 ]
 
 const visibleLinks = computed(() =>

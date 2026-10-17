@@ -14,6 +14,8 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'role' => $this->role,
+            'notify_low_stock' => (bool) $this->notify_low_stock,
+            'notify_purchase_orders' => (bool) $this->notify_purchase_orders,
             'created_at' => $this->created_at,
         ];
     }

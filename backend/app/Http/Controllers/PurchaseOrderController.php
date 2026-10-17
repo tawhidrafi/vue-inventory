@@ -8,6 +8,7 @@ use App\Http\Resources\PurchaseOrderResource;
 use App\Models\Product;
 use App\Models\PurchaseOrder;
 use App\Models\Warehouse;
+use App\Services\NotificationService;
 use App\Services\StockService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -97,7 +98,7 @@ class PurchaseOrderController extends Controller
         return response()->noContent();
     }
 
-    public function receive(ReceivePurchaseOrderRequest $request, PurchaseOrder $purchaseOrder, StockService $stock)
+    public function receive(ReceivePurchaseOrderRequest $request, PurchaseOrder $purchaseOrder, StockService $stock, NotificationService $notifications)
     {
         if (! in_array($purchaseOrder->status, ['draft', 'partially_received'], true)) {
             return response()->json(['message' => 'This purchase order cannot be received.'], 422);
@@ -186,7 +187,13 @@ class PurchaseOrderController extends Controller
             ]);
         });
 
-        return new PurchaseOrderResource($purchaseOrder->fresh()->load(['supplier', 'items.product']));
+        $fresh = $purchaseOrder->fresh()->load(['supplier', 'items.product']);
+
+        if ($fresh->status === 'received') {
+            $notifications->purchaseOrderReceived($fresh);
+        }
+
+        return new PurchaseOrderResource($fresh);
     }
 
     public function cancel(PurchaseOrder $purchaseOrder)

@@ -33,11 +33,27 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  function applyUser(value) {
+    user.value = value
+  }
+
   function clear() {
     token.value = null
     user.value = null
     localStorage.removeItem('token')
   }
 
-  return { token, user, isLoggedIn, role, isAdmin, canManage, login, fetchUser, logout, clear }
+  return {
+    token,
+    user,
+    isLoggedIn,
+    role,
+    isAdmin,
+    canManage,
+    login,
+    fetchUser,
+    applyUser,
+    logout,
+    clear,
+  }
 })
