@@ -42,9 +42,24 @@ db seeded
 10. Tested 
 
 /* ---------------------------------------------------------------------------*/
-
 1. Categories, Suppliers, warehouse, products (Models and schema are created)
 2. Tested
 
 /* ---------------------------------------------------------------------------*/
-1. Categories,s
+## 18-10-2026
+1. Project analysis & strategic roadmap created (PROJECT_ANALYSIS_AND_ROADMAP.md)
+2. Outbound Operations & Customer Sales Orders (Option A):
+   - Migrations: customers, sales_orders, sales_order_items
+   - Models: Customer, SalesOrder, SalesOrderItem with ActivityObserver
+   - Requests: CustomerRequest, SalesOrderRequest, ShipSalesOrderRequest
+   - Resources: CustomerResource, SalesOrderResource, SalesOrderItemResource
+   - Controllers: CustomerController, SalesOrderController, ReportController update
+   - Routes: api.php updated with CRUD, ship, confirm, cancel endpoints
+   - Tests: CustomerTest, SalesOrderTest (101 backend tests passing)
+   - Frontend:
+     * api/customers.js, api/salesOrders.js
+     * CustomersView.vue (CRUD, search, active filter)
+     * SalesOrdersView.vue (dynamic lines, pricing, totals, fulfillment dispatch)
+     * PrintSalesOrderView.vue (printable invoice / packing slip)
+     * DashboardView.vue & AppLayout.vue updated
+   - Tested: 101 backend PHPUnit tests + 19 frontend Vitest tests passing, 0 ESLint errors
