@@ -21,7 +21,7 @@ onMounted(async () => {
 
     <p v-if="error" class="mb-4 rounded bg-red-50 px-3 py-2 text-sm text-red-700">{{ error }}</p>
 
-    <div v-if="summary" class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+    <div v-if="summary" class="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-8">
       <div class="rounded-lg bg-white p-4 shadow">
         <p class="text-sm text-gray-500">Products</p>
         <p class="text-2xl font-semibold">{{ summary.products }}</p>
@@ -29,6 +29,14 @@ onMounted(async () => {
       <div class="rounded-lg bg-white p-4 shadow">
         <p class="text-sm text-gray-500">Categories</p>
         <p class="text-2xl font-semibold">{{ summary.categories }}</p>
+      </div>
+      <div class="rounded-lg bg-white p-4 shadow">
+        <p class="text-sm text-gray-500">Customers</p>
+        <p class="text-2xl font-semibold">{{ summary.customers ?? 0 }}</p>
+      </div>
+      <div class="rounded-lg bg-white p-4 shadow">
+        <p class="text-sm text-gray-500">Sales Orders</p>
+        <p class="text-2xl font-semibold">{{ summary.sales_orders ?? 0 }}</p>
       </div>
       <div class="rounded-lg bg-white p-4 shadow">
         <p class="text-sm text-gray-500">Suppliers</p>

@@ -3,6 +3,7 @@
 namespace Tests\Concerns;
 
 use App\Models\Category;
+use App\Models\Customer;
 use App\Models\Product;
 use App\Models\Supplier;
 use App\Models\Warehouse;
@@ -38,6 +39,14 @@ trait CreatesModels
     {
         return Supplier::create(array_merge(
             ['name' => 'Supplier '.uniqid()],
+            $attributes,
+        ));
+    }
+
+    protected function makeCustomer(array $attributes = []): Customer
+    {
+        return Customer::create(array_merge(
+            ['name' => 'Customer '.uniqid()],
             $attributes,
         ));
     }

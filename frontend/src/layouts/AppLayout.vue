@@ -13,13 +13,15 @@ async function logout() {
 
 const links = [
   { to: '/', label: 'Dashboard' },
-  { to: '/categories', label: 'Categories' },
   { to: '/products', label: 'Products' },
   { to: '/stock', label: 'Stock' },
-  { to: '/reports', label: 'Reports' },
+  { to: '/sales-orders', label: 'Sales Orders' },
+  { to: '/customers', label: 'Customers' },
   { to: '/purchase-orders', label: 'Purchase Orders' },
   { to: '/suppliers', label: 'Suppliers' },
+  { to: '/categories', label: 'Categories' },
   { to: '/warehouses', label: 'Warehouses' },
+  { to: '/reports', label: 'Reports' },
   { to: '/activity', label: 'Activity', roles: ['admin', 'manager'] },
   { to: '/users', label: 'Users', roles: ['admin'] },
   { to: '/settings', label: 'Settings' },

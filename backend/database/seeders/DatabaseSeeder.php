@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-         User::create([
+        User::create([
             'name' => 'Admin',
             'email' => 'admin@example.com',
             'password' => 'password',   // the model's "hashed" cast hashes it automatically

@@ -15,7 +15,7 @@ class WarehouseController extends Controller
             ->when($request->search, function ($q, $s) {
                 $q->where(function ($q) use ($s) {
                     $q->where('name', 'like', "%{$s}%")
-                      ->orWhere('address', 'like', "%{$s}%");
+                        ->orWhere('address', 'like', "%{$s}%");
                 });
             })
             ->orderBy('name');

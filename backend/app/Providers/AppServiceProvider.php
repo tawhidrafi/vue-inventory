@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Models\Category;
+use App\Models\Customer;
 use App\Models\Product;
 use App\Models\PurchaseOrder;
+use App\Models\SalesOrder;
 use App\Models\Supplier;
 use App\Models\User;
 use App\Models\Warehouse;
@@ -33,6 +35,8 @@ class AppServiceProvider extends ServiceProvider
             Supplier::class,
             Warehouse::class,
             PurchaseOrder::class,
+            Customer::class,
+            SalesOrder::class,
             User::class,
         ] as $model) {
             $model::observe(ActivityObserver::class);

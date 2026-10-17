@@ -3,12 +3,14 @@
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductSupplierController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SalesOrderController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\StockTransferController;
@@ -54,10 +56,17 @@ Route::middleware('auth.token')->group(function () {
     Route::get('purchase-orders', [PurchaseOrderController::class, 'index']);
     Route::get('purchase-orders/{purchaseOrder}', [PurchaseOrderController::class, 'show']);
 
+    Route::get('customers', [CustomerController::class, 'index']);
+    Route::get('customers/{customer}', [CustomerController::class, 'show']);
+
+    Route::get('sales-orders', [SalesOrderController::class, 'index']);
+    Route::get('sales-orders/{salesOrder}', [SalesOrderController::class, 'show']);
+
     // ---- daily operations: available to every authenticated user ----
     Route::post('stock-movements', [StockMovementController::class, 'store']);
     Route::post('stock-transfers', [StockTransferController::class, 'store']);
     Route::post('purchase-orders/{purchaseOrder}/receive', [PurchaseOrderController::class, 'receive']);
+    Route::post('sales-orders/{salesOrder}/ship', [SalesOrderController::class, 'ship']);
 
     // ---- management: admins and managers ----
     Route::middleware('role:admin,manager')->group(function () {
@@ -81,6 +90,10 @@ Route::middleware('auth.token')->group(function () {
         Route::put('suppliers/{supplier}', [SupplierController::class, 'update']);
         Route::delete('suppliers/{supplier}', [SupplierController::class, 'destroy']);
 
+        Route::post('customers', [CustomerController::class, 'store']);
+        Route::put('customers/{customer}', [CustomerController::class, 'update']);
+        Route::delete('customers/{customer}', [CustomerController::class, 'destroy']);
+
         Route::post('warehouses', [WarehouseController::class, 'store']);
         Route::put('warehouses/{warehouse}', [WarehouseController::class, 'update']);
         Route::delete('warehouses/{warehouse}', [WarehouseController::class, 'destroy']);
@@ -89,6 +102,12 @@ Route::middleware('auth.token')->group(function () {
         Route::put('purchase-orders/{purchaseOrder}', [PurchaseOrderController::class, 'update']);
         Route::delete('purchase-orders/{purchaseOrder}', [PurchaseOrderController::class, 'destroy']);
         Route::post('purchase-orders/{purchaseOrder}/cancel', [PurchaseOrderController::class, 'cancel']);
+
+        Route::post('sales-orders', [SalesOrderController::class, 'store']);
+        Route::put('sales-orders/{salesOrder}', [SalesOrderController::class, 'update']);
+        Route::delete('sales-orders/{salesOrder}', [SalesOrderController::class, 'destroy']);
+        Route::post('sales-orders/{salesOrder}/confirm', [SalesOrderController::class, 'confirm']);
+        Route::post('sales-orders/{salesOrder}/cancel', [SalesOrderController::class, 'cancel']);
 
         Route::get('activity-logs', [ActivityLogController::class, 'index']);
     });

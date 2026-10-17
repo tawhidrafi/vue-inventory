@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ProductResource;
 use App\Models\Category;
+use App\Models\Customer;
 use App\Models\Product;
+use App\Models\SalesOrder;
 use App\Models\Stock;
 use App\Models\Supplier;
 use App\Models\Warehouse;
@@ -34,6 +36,8 @@ class ReportController extends Controller
             'products' => $products->count(),
             'categories' => Category::count(),
             'suppliers' => Supplier::count(),
+            'customers' => Customer::count(),
+            'sales_orders' => SalesOrder::count(),
             'warehouses' => Warehouse::count(),
             'low_stock' => $products->filter(fn ($p) => $p->reorder_level > 0 && (int) ($p->stock_total ?? 0) <= $p->reorder_level)->count(),
             'total_units' => (int) Stock::sum('quantity'),

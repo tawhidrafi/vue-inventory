@@ -17,6 +17,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/sales-orders/:id/print',
+      name: 'sales-order-print',
+      component: () => import('@/views/PrintSalesOrderView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/',
       component: () => import('@/layouts/AppLayout.vue'),
       meta: { requiresAuth: true },
@@ -34,6 +40,16 @@ const router = createRouter({
           path: 'purchase-orders',
           name: 'purchase-orders',
           component: () => import('@/views/PurchaseOrdersView.vue'),
+        },
+        {
+          path: 'sales-orders',
+          name: 'sales-orders',
+          component: () => import('@/views/SalesOrdersView.vue'),
+        },
+        {
+          path: 'customers',
+          name: 'customers',
+          component: () => import('@/views/CustomersView.vue'),
         },
         {
           path: 'suppliers',
