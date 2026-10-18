@@ -179,9 +179,9 @@ class ProductController extends Controller
     {
         $product = Product::withTrashed()->findOrFail($id);
 
-        if ($product->movements()->exists() || $product->purchaseOrderItems()->exists()) {
+        if ($product->movements()->exists() || $product->purchaseOrderItems()->exists() || $product->salesOrderItems()->exists()) {
             return response()->json([
-                'message' => 'Cannot permanently delete a product that has stock history or purchase orders.',
+                'message' => 'Cannot permanently delete a product that has stock history, purchase orders, or sales orders.',
             ], 422);
         }
 

@@ -142,6 +142,35 @@ class ProductTest extends TestCase
         $this->apiDelete("/api/products/{$product->id}/force")->assertStatus(422);
     }
 
+    public function test_force_delete_is_blocked_when_sales_orders_exist(): void
+    {
+        $product = $this->makeProduct();
+        $customer = $this->makeCustomer();
+
+        $so = \App\Models\SalesOrder::create([
+            'customer_id' => $customer->id,
+            'number' => 'SO-TEST-1',
+            'status' => 'draft',
+            'order_date' => now()->toDateString(),
+            'created_by' => $this->apiUser->id,
+            'subtotal' => 10,
+            'tax' => 0,
+            'discount' => 0,
+            'total' => 10,
+        ]);
+
+        \App\Models\SalesOrderItem::create([
+            'sales_order_id' => $so->id,
+            'product_id' => $product->id,
+            'quantity' => 1,
+            'unit_price' => 10,
+            'line_total' => 10,
+        ]);
+
+        $this->apiDelete("/api/products/{$product->id}")->assertNoContent();
+        $this->apiDelete("/api/products/{$product->id}/force")->assertStatus(422);
+    }
+
     public function test_a_product_can_be_looked_up_by_barcode_or_sku(): void
     {
         $product = $this->makeProduct(['sku' => 'SCAN-1', 'barcode' => '5901234123457']);
